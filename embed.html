@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thunderproof Embed Widget</title>
+    <meta name="description" content="Embeddable review widget powered by Thunderproof">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f23;
+            color: #ffffff;
+            padding: 16px;
+            font-size: 14px;
+        }
+        
+        .embed-container {
+            max-width: 100%;
+            background: #16213e;
+            border-radius: 12px;
+            border: 1px solid #2a2a3e;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .embed-header {
+            background: linear-gradient(135deg, #f7931a 0%, #ffc107 100%);
+            color: #0f0f23;
+            padding: 16px 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .embed-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        
+        .embed-logo {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+        
+        .embed-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .embed-stars {
+            height: 18px;
+            width: auto;
+        }
+        
+        .reviews-list {
+            padding: 16px 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .review-item {
+            border-bottom: 1px solid #2a2a3e;
+            padding: 16px 0;
+        }
+        
+        .review-item:last-child {
+            border-bottom: none;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .review-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .review-stars {
+            height: 14px;
+            width: auto;
+        }
+        
+        .review-author {
+            color: #a0a0a0;
+            font-size: 12px;
+            font-weight: 500;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        .verified-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .review-date {
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .review-content {
+            color: #e0e0e0;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        
+        .review-id {
+            color: #666;
+            font-size: 10px;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #a0a0a0;
+            padding: 40px 20px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2a2a3e;
+            border-top: 2px solid #f7931a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .powered-by {
+            text-align: center;
+            padding: 12px;
+            background: #0f0f23;
+            color: #666;
+            font-size: 11px;
+            border-top: 1px solid #2a2a3e;
+        }
+        
+        .powered-by a {
+            color: #f7931a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .powered-by a:hover {
+            text-decoration: underline;
+        }
+        
+        .no-reviews {
+            text-align: center;
+            color: #a0a0a0;
+            padding: 40px 20px;
+        }
+        
+        .no-reviews-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        
+        .error {
+            text-align: center;
+            color: #dc3545;
+            padding: 40px 20px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+                font-size: 12px;
+            }
+            
+            .embed-header {
+                padding: 12px 16px;
+            }
+            
+            .reviews-list {
+                padding: 12px 16px;
+            }
+            
+            .review-item {
+                padding: 12px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="embed-container">
+        <div class="embed-header">
+            <div class="embed-title">
+                <img src="assets/logo.svg" alt="⚡" class="embed-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display: none; font-size: 20px;">⚡</span>
+                <span id="profile-name">Thunderproof Reviews</span>
+            </div>
+            <div class="embed-rating">
+                <img id="overall-stars" src="" alt="" class="embed-stars" style="display: none;">
+                <span id="rating-text">0.0</span>
+            </div>
+        </div>
+        
+        <div id="content-area">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>Loading reviews...</div>
+            </div>
+        </div>
+        
+        <div class="powered-by">
+            Powered by <a href="https://thunderproof.org" target="_blank" rel="noopener">⚡ Thunderproof</a>
+        </div>
+    </div>
+
+    <script>
+        class ThunderproofEmbed {
+            constructor() {
+                this.profileNpub = null;
+                this.maxReviews = 5;
+                this.reviews = [];
+                this.nostr = null;
+                
+                // Configuration
+                this.relays = [
+                    'wss://relay.damus.io',
+                    'wss://nos.lol', 
+                    'wss://relay.snort.social',
+                    'wss://relay.current.fyi',
+                    'wss://brb.io'
+                ];
+                
+                this.REVIEW_KIND = 1985;
+                this.REVIEW_NAMESPACE = 'thunderproof';
+                
+                this.init();
+            }
+            
+            async init() {
+                this.parseParams();
+                await this.loadNostrTools();
+                await this.loadReviews();
+            }
+            
+            parseParams() {
+                const params = new URLSearchParams(window.location.search);
+                this.profileNpub = params.get('profile');
+                this.maxReviews = parseInt(params.get('max')) || 5;
+                
+                if (!this.profileNpub) {
+                    this.showError('No profile specified');
+                    return;
+                }
+                
+                if (!this.isValidNpub(this.profileNpub)) {
+                    this.showError('Invalid profile key');
+                    return;
+                }
+            }
+            
+            async loadNostrTools() {
+                try {
+                    const cdns = [
+                        'https://unpkg.com/nostr-tools@2.7.2/lib/esm/index.js',
+                        'https://cdn.skypack.dev/nostr-tools@2.7.2',
+                        'https://esm.sh/nostr-tools@2.7.2'
+                    ];
+                    
+                    for (const cdn of cdns) {
+                        try {
+                            this.nostr = await import(cdn);
+                            console.log('✅ Nostr tools loaded for embed');
+                            return;
+                        } catch (error) {
+                            console.warn(`Failed to load from ${cdn}`);
+                            continue;
+                        }
+                    }
+                    
+                    throw new Error('Failed to load nostr-tools');
+                    
+                } catch (error) {
+                    console.error('Failed to load nostr-tools:', error);
+                    this.showError('Failed to load Nostr tools');
+                }
+            }
+            
+            async loadReviews() {
+                if (!this.nostr) {
+                    this.showError('Nostr tools not available');
+                    return;
+                }
+                
+                try {
+                    // Decode npub to get pubkey
+                    const decoded = this.nostr.nip19.decode(this.profileNpub);
+                    const targetPubkey = decoded.data;
+                    
+                    // Fetch reviews from relays
+                    const reviews = await this.fetchReviewsFromRelays(targetPubkey);
+                    this.reviews = reviews.slice(0, this.maxReviews);
+                    
+                    // Fetch profile info
+                    const profileInfo = await this.fetchProfileInfo(targetPubkey);
+                    
+                    this.displayContent(profileInfo);
+                    
+                } catch (error) {
+                    console.error('Failed to load reviews:', error);
+                    this.showError('Failed to load reviews');
+                }
+            }
+            
+            async fetchReviewsFromRelays(targetPubkey) {
+                try {
+                    const pool = new this.nostr.SimplePool();
+                    
+                    const filter = {
+                        kinds: [this.REVIEW_KIND],
+                        '#L': [this.REVIEW_NAMESPACE],
+                        '#l': ['review'],
+                        '#p': [targetPubkey],
+                        limit: this.maxReviews * 2 // Get more in case some are invalid
+                    };
+                    
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout')), 10000)
+                    );
+                    
+                    const queryPromise = pool.querySync(this.relays, filter);
+                    const events = await Promise.race([queryPromise, timeoutPromise]);
+                    
+                    pool.close(this.relays);
+                    
+                    // Process and validate review events
+                    const reviews = [];
+                    
+                    for (const event of events) {
+                        try {
+                            const review = this.processReviewEvent(event);
+                            if (review) {
+                                reviews.push(review);
+                            }
+                        } catch (error) {
+                            console.warn('Failed to process review event:', error);
+                        }
+                    }
+                    
+                    // Sort by creation date (newest first)
+                    reviews.sort((a, b) => b.created_at - a.created_at);
+                    
+                    return reviews;
+                    
+                } catch (error) {
+                    console.error('Error fetching reviews from relays:', error);
+                    return [];
+                }
+            }
+            
+            async fetchProfileInfo(pubkey) {
+                try {
+                    const pool = new this.nostr.SimplePool();
+                    
+                    const filter = {
+                        kinds: [0],
+                        authors: [pubkey],
+                        limit: 1
+                    };
+                    
+                    const timeoutPromise = new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Timeout')), 5000)
+                    );
+                    
+                    const queryPromise = pool.querySync(this.relays, filter);
+                    const events = await Promise.race([queryPromise, timeoutPromise]);
+                    
+                    pool.close(this.relays);
+                    
+                    if (events.length > 0) {
+                        const profileEvent = events.reduce((latest, current) => 
+                            current.created_at > latest.created_at ? current : latest
+                        );
+                        
+                        try {
+                            const profileData = JSON.parse(profileEvent.content);
+                            return {
+                                name: profileData.name || profileData.display_name || this.formatNpub(this.profileNpub),
+                                picture: profileData.picture
+                            };
+                        } catch (error) {
+                            console.warn('Failed to parse profile data:', error);
+                        }
+                    }
+                    
+                    return {
+                        name: this.formatNpub(this.profileNpub),
+                        picture: null
+                    };
+                    
+                } catch (error) {
+                    console.error('Error fetching profile info:', error);
+                    return {
+                        name: this.formatNpub(this.profileNpub),
+                        picture: null
+                    };
+                }
+            }
+            
+            processReviewEvent(event) {
+                try {
+                    // Verify event signature
+                    const isValid = this.nostr.verifySignature(event);
+                    if (!isValid) {
+                        return null;
+                    }
+                    
+                    // Extract review data from tags
+                    const ratingTag = event.tags.find(tag => tag[0] === 'rating');
+                    const targetTag = event.tags.find(tag => tag[0] === 'p');
+                    const namespaceTag = event.tags.find(tag => tag[0] === 'L' && tag[1] === this.REVIEW_NAMESPACE);
+                    const typeTag = event.tags.find(tag => tag[0] === 'l' && tag[1] === 'review');
+                    
+                    if (!ratingTag || !targetTag || !namespaceTag || !typeTag) {
+                        return null;
+                    }
+                    
+                    const rating = parseInt(ratingTag[1]);
+                    if (rating < 1 || rating > 5) {
+                        return null;
+                    }
+                    
+                    const authorNpub = this.nostr.nip19.npubEncode(event.pubkey);
+                    
+                    return {
+                        id: event.id,
+                        target: targetTag[1],
+                        author: event.pubkey,
+                        authorNpub: authorNpub,
+                        rating: rating,
+                        content: event.content,
+                        created_at: event.created_at,
+                        verified: false
+                    };
+                } catch (error) {
+                    console.error('Error processing review event:', error);
+                    return null;
+                }
+            }
+            
+            displayContent(profileInfo) {
+                const contentArea = document.getElementById('content-area');
+                const profileNameEl = document.getElementById('profile-name');
+                const ratingTextEl = document.getElementById('rating-text');
+                const overallStarsEl = document.getElementById('overall-stars');
+                
+                // Update header
+                if (profileInfo.name) {
+                    profileNameEl.textContent = `${profileInfo.name} Reviews`;
+                }
+                
+                if (this.reviews.length === 0) {
+                    contentArea.innerHTML = `
+                        <div class="no-reviews">
+                            <div class="no-reviews-icon">📝</div>
+                            <div><strong>No reviews yet</strong></div>
+                            <div>Be the first to review!</div>
+                        </div>
+                    `;
+                    ratingTextEl.textContent = '0.0';
+                    return;
+                }
+                
+                // Calculate average rating
+                const avgRating = this.reviews.reduce((sum, r) => sum + r.rating, 0) / this.reviews.length;
+                ratingTextEl.textContent = avgRating.toFixed(1);
+                
+                // Show overall stars
+                const ratingAsset = this.getRatingAsset(avgRating);
+                overallStarsEl.src = `assets/${ratingAsset}.svg`;
+                overallStarsEl.style.display = 'block';
+                overallStarsEl.onerror = () => {
+                    // Fallback to text stars if SVG fails
+                    overallStarsEl.style.display = 'none';
+                    ratingTextEl.textContent = `${'★'.repeat(Math.round(avgRating))}${'☆'.repeat(5 - Math.round(avgRating))} ${avgRating.toFixed(1)}`;
+                };
+                
+                // Display reviews
+                const reviewsHTML = this.reviews.map(review => `
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-meta">
+                                <img src="assets/${this.getRatingAsset(review.rating)}.svg" 
+                                     alt="${review.rating} stars" 
+                                     class="review-stars"
+                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                <span style="display: none; color: #ffc107;">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</span>
+                                <span class="review-author">${this.formatAuthor(review.authorNpub)}</span>
+                                ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
+                            </div>
+                            <span class="review-date">${this.formatDate(review.created_at)}</span>
+                        </div>
+                        <div class="review-content">${this.escapeHtml(review.content)}</div>
+                        <div class="review-id">Event: ${review.id.substring(0, 8)}...</div>
+                    </div>
+                `).join('');
+                
+                contentArea.innerHTML = `
+                    <div class="reviews-list">
+                        ${reviewsHTML}
+                    </div>
+                `;
+            }
+            
+            showError(message) {
+                const contentArea = document.getElementById('content-area');
+                contentArea.innerHTML = `
+                    <div class="error">
+                        <div>⚠️ ${message}</div>
+                    </div>
+                `;
+            }
+            
+            // Utility functions
+            isValidNpub(key) {
+                return key && key.startsWith('npub1') && key.length === 63;
+            }
+            
+            getRatingAsset(rating) {
+                const percentage = Math.round(rating * 20);
+                if (percentage >= 100) return '100';
+                if (percentage >= 90) return '90';
+                if (percentage >= 80) return '80';
+                if (percentage >= 70) return '70';
+                if (percentage >= 60) return '60';
+                if (percentage >= 50) return '50';
+                if (percentage >= 40) return '40';
+                if (percentage >= 30) return '30';
+                if (percentage >= 20) return '20';
+                if (percentage >= 10) return '10';
+                return '0';
+            }
+            
+            formatAuthor(npub) {
+                return npub.substring(0, 16) + '...';
+            }
+            
+            formatNpub(npub) {
+                return npub.substring(0, 20) + '...';
+            }
+            
+            formatDate(timestamp) {
+                try {
+                    const date = new Date(timestamp * 1000);
+                    const now = new Date();
+                    const diffTime = Math.abs(now - date);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    
+                    if (diffDays === 0) return 'Today';
+                    if (diffDays === 1) return 'Yesterday';
+                    if (diffDays < 7) return `${diffDays}d ago`;
+                    return date.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                } catch (error) {
+                    return 'Unknown date';
+                }
+            }
+            
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+        
+        // Initialize embed when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new ThunderproofEmbed();
+        });
+    </script>
+</body>
+</html>
