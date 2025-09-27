@@ -43,7 +43,7 @@
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
-            <div class="nav-brand">
+            <div class="nav-brand" id="nav-brand">
                 <img src="assets/logo.svg" alt="Thunderproof Logo" class="logo">
                 <div class="brand-text">
                     <span class="brand-name">Thunderproof</span>
@@ -455,11 +455,12 @@
         <div class="modal-overlay"></div>
         <div class="modal-content">
             <div class="modal-header">
+                <button id="back-to-methods" class="back-arrow hidden" aria-label="Back to login methods">←</button>
                 <h3>Connect to Nostr</h3>
                 <button class="modal-close" aria-label="Close">&times;</button>
             </div>
             
-            <div class="modal-body">
+            <div class="modal-body" id="connect-modal-body">
                 <div class="connect-options">
                     <button class="connect-option primary" id="connect-extension">
                         <div class="option-icon">🔌</div>

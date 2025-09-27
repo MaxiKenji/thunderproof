@@ -1,4 +1,4 @@
-// Thunderproof - Complete Nostr Review System
+// Thunderproof - Complete Nostr Review System with Publishing Fix
 class ThunderproofApp {
     constructor() {
         // Application state
@@ -57,6 +57,7 @@ class ThunderproofApp {
             // Use the preloaded promise from HTML
             if (window.nostrToolsPromise) {
                 this.nostr = await window.nostrToolsPromise;
+                console.log('✅ Loaded from preloaded promise');
             } else {
                 // Fallback to direct import
                 const cdns = [
@@ -68,6 +69,7 @@ class ThunderproofApp {
                 for (const cdn of cdns) {
                     try {
                         this.nostr = await import(cdn);
+                        console.log(`✅ Loaded from CDN: ${cdn}`);
                         break;
                     } catch (error) {
                         console.warn(`Failed to load from ${cdn}`);
@@ -97,6 +99,10 @@ class ThunderproofApp {
     }
 
     setupEventListeners() {
+        // Logo click to go home
+        const navBrand = document.getElementById('nav-brand');
+        navBrand?.addEventListener('click', () => this.goHome());
+        
         // Search functionality
         const searchBtn = document.getElementById('search-btn');
         const searchInput = document.getElementById('search-input');
@@ -160,6 +166,11 @@ class ThunderproofApp {
                     this.hideModal(modal);
                 }
             });
+        });
+
+        // Back to methods arrow button
+        document.getElementById('back-to-methods')?.addEventListener('click', () => {
+            this.showConnectMethods();
         });
 
         // Connect options (removed generate keys functionality)
@@ -253,6 +264,26 @@ class ThunderproofApp {
             }
             this.handleSearch();
         }
+    }
+
+    goHome() {
+        // Reset to home page
+        this.showHeroSection();
+        
+        // Clear search input
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        
+        // Clear current profile
+        this.currentProfile = null;
+        this.currentReviews = [];
+        
+        // Clear URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        console.log('🏠 Returned to home page');
     }
 
     async handleSearch() {
@@ -637,7 +668,47 @@ class ThunderproofApp {
     // Connection functionality
     showConnectModal() {
         const modal = document.getElementById('connect-modal');
+        this.showConnectMethods();
         this.showModal(modal);
+    }
+
+    showConnectMethods() {
+        const modalBody = document.getElementById('connect-modal-body');
+        const backArrow = document.getElementById('back-to-methods');
+        
+        // Hide back arrow and show connect methods
+        backArrow?.classList.add('hidden');
+        
+        modalBody.innerHTML = `
+            <div class="connect-options">
+                <button class="connect-option primary" id="connect-extension">
+                    <div class="option-icon">🔌</div>
+                    <div class="option-info">
+                        <h4>Nostr Extension</h4>
+                        <p>Connect using Alby, nos2x, or another NIP-07 extension</p>
+                    </div>
+                </button>
+                
+                <button class="connect-option" id="connect-key">
+                    <div class="option-icon">🔑</div>
+                    <div class="option-info">
+                        <h4>Private Key</h4>
+                        <p>Enter your nsec private key manually (stored locally)</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="security-notice">
+                <p>
+                    <strong>🔒 Security:</strong> 
+                    Your private keys never leave your device. Extension login is recommended for best security.
+                </p>
+            </div>
+        `;
+        
+        // Re-attach event listeners for connect options
+        document.getElementById('connect-extension')?.addEventListener('click', () => this.connectExtension());
+        document.getElementById('connect-key')?.addEventListener('click', () => this.showNsecInput());
     }
 
     async connectExtension() {
@@ -673,8 +744,11 @@ class ThunderproofApp {
     }
 
     showNsecInput() {
-        const modalBody = document.querySelector('#connect-modal .modal-body');
-        if (!modalBody) return;
+        const modalBody = document.getElementById('connect-modal-body');
+        const backArrow = document.getElementById('back-to-methods');
+        
+        // Show back arrow
+        backArrow?.classList.remove('hidden');
         
         modalBody.innerHTML = `
             <div class="nsec-input-form">
@@ -958,6 +1032,8 @@ class ThunderproofApp {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<span class="btn-icon">⚡</span> Publishing to Nostr...';
             
+            console.log('🚀 Starting review submission process...');
+            
             // Create and publish review event
             const reviewEvent = await this.createReviewEvent(
                 this.currentProfile.pubkey,
@@ -965,7 +1041,11 @@ class ThunderproofApp {
                 comment
             );
             
+            console.log('📝 Review event created:', reviewEvent);
+            
             await this.publishReviewEvent(reviewEvent);
+            
+            console.log('✅ Review successfully published!');
             
             // Close modal and show success
             this.hideModal(document.getElementById('review-modal'));
@@ -1014,10 +1094,16 @@ class ThunderproofApp {
         // Sign the event
         if (this.user.method === 'extension' && window.nostr) {
             // Use extension signing
-            return await window.nostr.signEvent(event);
+            console.log('🔐 Signing with extension...');
+            const signedEvent = await window.nostr.signEvent(event);
+            console.log('✅ Event signed with extension:', signedEvent);
+            return signedEvent;
         } else if (this.user.method === 'nsec' && this.user.privkey) {
             // Use local private key
-            return this.nostr.finishEvent(event, this.user.privkey);
+            console.log('🔐 Signing with private key...');
+            const signedEvent = this.nostr.finishEvent(event, this.user.privkey);
+            console.log('✅ Event signed with private key:', signedEvent);
+            return signedEvent;
         } else {
             throw new Error('No signing method available');
         }
@@ -1026,8 +1112,13 @@ class ThunderproofApp {
     async publishReviewEvent(signedEvent) {
         console.log('📤 Publishing review event to Nostr relays:', signedEvent);
         
+        if (!this.nostr.SimplePool) {
+            throw new Error('SimplePool not available in nostr-tools');
+        }
+        
         const pool = new this.nostr.SimplePool();
         let successfulPublishes = 0;
+        const publishResults = [];
         
         try {
             // Publish to all relays with individual error handling
@@ -1038,6 +1129,7 @@ class ThunderproofApp {
                     
                     return new Promise((resolve, reject) => {
                         const timeout = setTimeout(() => {
+                            console.warn(`⏰ Timeout publishing to ${relay}`);
                             reject(new Error(`Timeout publishing to ${relay}`));
                         }, 15000);
                         
@@ -1045,17 +1137,20 @@ class ThunderproofApp {
                             clearTimeout(timeout);
                             console.log(`✅ Successfully published to ${relay}`);
                             successfulPublishes++;
+                            publishResults.push({ relay, status: 'success' });
                             resolve(relay);
                         });
                         
                         pub.on('failed', (reason) => {
                             clearTimeout(timeout);
                             console.warn(`❌ Failed to publish to ${relay}:`, reason);
+                            publishResults.push({ relay, status: 'failed', reason });
                             reject(new Error(`Failed to publish to ${relay}: ${reason}`));
                         });
                     });
                 } catch (error) {
                     console.warn(`❌ Error publishing to ${relay}:`, error.message);
+                    publishResults.push({ relay, status: 'error', error: error.message });
                     throw error;
                 }
             });
@@ -1066,16 +1161,32 @@ class ThunderproofApp {
             const successful = results.filter(result => result.status === 'fulfilled');
             const failed = results.filter(result => result.status === 'rejected');
             
-            console.log(`📊 Publication results: ${successful.length} successful, ${failed.length} failed`);
+            console.log(`📊 Publication results:`, publishResults);
+            console.log(`📊 Summary: ${successful.length} successful, ${failed.length} failed`);
             
             if (successful.length === 0) {
-                throw new Error('Failed to publish to any relay');
+                console.error('❌ Failed to publish to any relay');
+                throw new Error(`Failed to publish to any relay. Tried ${this.relays.length} relays.`);
             }
             
             console.log(`✅ Review successfully published to ${successful.length}/${this.relays.length} relays`);
             
+            return {
+                successful: successful.length,
+                failed: failed.length,
+                total: this.relays.length,
+                results: publishResults
+            };
+            
+        } catch (error) {
+            console.error('❌ Error in publishReviewEvent:', error);
+            throw error;
         } finally {
-            pool.close(this.relays);
+            try {
+                pool.close(this.relays);
+            } catch (error) {
+                console.warn('Error closing pool:', error);
+            }
         }
     }
 
