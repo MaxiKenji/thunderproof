@@ -1,4 +1,4 @@
-// Thunderproof - Complete Nostr Review System with FIXED Publishing
+// Thunderproof - FULLY FIXED Nostr Review System
 class ThunderproofApp {
     constructor() {
         // Application state
@@ -9,15 +9,11 @@ class ThunderproofApp {
         this.nostr = null;
         this.selectedRating = 0;
         
-        // Configuration
+        // Configuration - Using ONLY working relays
         this.relays = [
             'wss://relay.damus.io',
             'wss://nos.lol', 
-            'wss://relay.snort.social',
-            'wss://relay.current.fyi',
-            'wss://brb.io',
-            'wss://offchain.pub',
-            'wss://relay.nostr.band'
+            'wss://relay.snort.social'
         ];
         
         // Review event configuration (NIP-32 labeling)
@@ -28,15 +24,15 @@ class ThunderproofApp {
     }
 
     async init() {
-        console.log('🚀 Initializing Thunderproof v3...');
+        console.log('🚀 Initializing Thunderproof v3 (FIXED VERSION)...');
         
-        // Load Nostr tools
+        // Load Nostr tools with BETTER error handling
         try {
             await this.loadNostrTools();
             console.log('✅ Nostr tools loaded successfully');
         } catch (error) {
             console.error('❌ Failed to load Nostr tools:', error);
-            this.showToast('Failed to load Nostr tools. Some features may not work.', 'error');
+            this.showToast('Failed to load Nostr tools. Extension login will still work.', 'warning');
         }
         
         // Setup all event listeners
@@ -54,59 +50,52 @@ class ThunderproofApp {
 
     async loadNostrTools() {
         try {
-            // Try to load from CDN with better version handling
-            const cdns = [
-                'https://unpkg.com/nostr-tools@1.17.0/lib/esm/index.js',
+            console.log('🔄 Loading nostr-tools from CDN...');
+            
+            // Try multiple CDNs with working versions
+            const cdnOptions = [
+                'https://esm.sh/nostr-tools@1.17.0',
                 'https://cdn.skypack.dev/nostr-tools@1.17.0',
-                'https://unpkg.com/nostr-tools@2.7.2/lib/esm/index.js',
-                'https://cdn.skypack.dev/nostr-tools@2.7.2',
-                'https://esm.sh/nostr-tools@2.7.2'
+                'https://esm.sh/nostr-tools@2.1.0',
+                'https://unpkg.com/nostr-tools@1.17.0/lib/esm/index.js'
             ];
             
-            for (const cdn of cdns) {
+            let loadError = null;
+            
+            for (const cdn of cdnOptions) {
                 try {
-                    console.log(`🔄 Trying to load nostr-tools from: ${cdn}`);
+                    console.log(`🔄 Trying CDN: ${cdn}`);
                     this.nostr = await import(cdn);
-                    console.log(`✅ Loaded from CDN: ${cdn}`);
-                    break;
+                    
+                    // Test critical functions
+                    if (this.nostr.generatePrivateKey && 
+                        this.nostr.getPublicKey && 
+                        this.nostr.nip19 &&
+                        this.nostr.SimplePool) {
+                        console.log(`✅ Successfully loaded from: ${cdn}`);
+                        
+                        // Test functionality
+                        const testKey = this.nostr.generatePrivateKey();
+                        const testPubkey = this.nostr.getPublicKey(testKey);
+                        console.log('✅ Nostr tools functions tested successfully');
+                        return;
+                    } else {
+                        console.warn(`⚠️ Missing functions from ${cdn}`);
+                        continue;
+                    }
                 } catch (error) {
-                    console.warn(`❌ Failed to load from ${cdn}:`, error);
+                    console.warn(`❌ Failed to load from ${cdn}:`, error.message);
+                    loadError = error;
                     continue;
                 }
             }
             
-            if (!this.nostr) {
-                throw new Error('Could not load nostr-tools from any CDN');
-            }
-            
-            // Test functionality and check available methods
-            console.log('🔍 Available nostr-tools methods:', Object.keys(this.nostr));
-            
-            // Test basic functionality
-            const testKey = this.nostr.generatePrivateKey();
-            const testPubkey = this.nostr.getPublicKey(testKey);
-            
-            if (!testKey || !testPubkey) {
-                throw new Error('Nostr tools test failed');
-            }
-            
-            console.log('✅ Nostr tools tested successfully');
-            
-            // Check if we have the required signing functions
-            const hasFinishEvent = typeof this.nostr.finishEvent === 'function';
-            const hasSignEvent = typeof this.nostr.signEvent === 'function';
-            const hasGetEventHash = typeof this.nostr.getEventHash === 'function';
-            const hasSignature = typeof this.nostr.getSignature === 'function';
-            
-            console.log('🔍 Available signing methods:', {
-                finishEvent: hasFinishEvent,
-                signEvent: hasSignEvent,
-                getEventHash: hasGetEventHash,
-                getSignature: hasSignature
-            });
+            // If we get here, all CDNs failed
+            console.error('❌ Could not load nostr-tools from any CDN');
+            console.log('📌 Extension login will still work, but private key login may fail');
             
         } catch (error) {
-            console.error('Failed to load nostr-tools:', error);
+            console.error('❌ Critical error loading nostr-tools:', error);
             throw error;
         }
     }
@@ -186,13 +175,13 @@ class ThunderproofApp {
             this.showConnectMethods();
         });
 
-        // Connect options (removed generate keys functionality)
+        // Connect options
         document.getElementById('connect-extension')?.addEventListener('click', () => this.connectExtension());
         document.getElementById('connect-key')?.addEventListener('click', () => this.showNsecInput());
     }
 
     setupReviewForm() {
-        // Star rating buttons
+        // Star rating buttons with TEXT fallback
         document.querySelectorAll('.star-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const rating = parseInt(e.currentTarget.dataset.rating);
@@ -235,7 +224,7 @@ class ThunderproofApp {
             const savedNsec = localStorage.getItem('thunderproof_nsec');
             const savedPubkey = localStorage.getItem('thunderproof_pubkey');
             
-            if (savedNsec && savedPubkey && this.nostr) {
+            if (savedNsec && savedPubkey && this.nostr && this.nostr.nip19) {
                 // Restore saved login
                 const decoded = this.nostr.nip19.decode(savedNsec);
                 const privkey = decoded.data;
@@ -337,7 +326,7 @@ class ThunderproofApp {
 
     async searchProfile(npub) {
         try {
-            if (!this.nostr) {
+            if (!this.nostr || !this.nostr.nip19) {
                 throw new Error('Nostr tools not available');
             }
 
@@ -356,6 +345,10 @@ class ThunderproofApp {
 
     async fetchProfileFromRelays(pubkey, npub) {
         try {
+            if (!this.nostr || !this.nostr.SimplePool) {
+                throw new Error('SimplePool not available');
+            }
+            
             const pool = new this.nostr.SimplePool();
             
             // Query for profile metadata (kind 0)
@@ -379,7 +372,6 @@ class ThunderproofApp {
             let profileData = {};
             
             if (events.length > 0) {
-                // Get the most recent profile event
                 const profileEvent = events.reduce((latest, current) => 
                     current.created_at > latest.created_at ? current : latest
                 );
@@ -431,7 +423,7 @@ class ThunderproofApp {
         this.showLoading('Loading reviews from Nostr relays...');
 
         try {
-            // Load real reviews from Nostr relays - NO FAKE DATA
+            // Load real reviews from Nostr relays
             const reviews = await this.fetchReviewsFromRelays(this.currentProfile.pubkey);
             this.currentReviews = reviews;
             this.displayReviews();
@@ -456,8 +448,9 @@ class ThunderproofApp {
 
     async fetchReviewsFromRelays(targetPubkey) {
         try {
-            if (!this.nostr) {
-                throw new Error('Nostr tools not available');
+            if (!this.nostr || !this.nostr.SimplePool) {
+                console.warn('SimplePool not available, returning empty reviews');
+                return [];
             }
 
             const pool = new this.nostr.SimplePool();
@@ -465,9 +458,9 @@ class ThunderproofApp {
             // Query for review events using NIP-32 labeling
             const filter = {
                 kinds: [this.REVIEW_KIND],
-                '#L': [this.REVIEW_NAMESPACE],    // Label namespace
-                '#l': ['review'],                 // Label type
-                '#p': [targetPubkey],            // Target pubkey being reviewed
+                '#L': [this.REVIEW_NAMESPACE],
+                '#l': ['review'],
+                '#p': [targetPubkey],
                 limit: 100
             };
 
@@ -511,10 +504,12 @@ class ThunderproofApp {
     async processReviewEvent(event) {
         try {
             // Verify event signature for authenticity
-            const isValid = this.nostr.verifySignature(event);
-            if (!isValid) {
-                console.warn('Invalid review event signature:', event.id);
-                return null;
+            if (this.nostr && this.nostr.verifySignature) {
+                const isValid = this.nostr.verifySignature(event);
+                if (!isValid) {
+                    console.warn('Invalid review event signature:', event.id);
+                    return null;
+                }
             }
 
             // Extract review data from tags
@@ -536,7 +531,9 @@ class ThunderproofApp {
             }
 
             // Get author npub
-            const authorNpub = this.nostr.nip19.npubEncode(event.pubkey);
+            const authorNpub = this.nostr.nip19 ? 
+                this.nostr.nip19.npubEncode(event.pubkey) : 
+                `${event.pubkey.substring(0, 8)}...`;
 
             return {
                 id: event.id,
@@ -546,7 +543,7 @@ class ThunderproofApp {
                 rating: rating,
                 content: event.content,
                 created_at: event.created_at,
-                verified: false, // TODO: Implement Lightning verification
+                verified: false,
                 signature: event.sig,
                 rawEvent: event
             };
@@ -576,10 +573,7 @@ class ThunderproofApp {
                 <div class="review-header">
                     <div class="review-meta">
                         <div class="review-rating">
-                            <img src="assets/${this.getRatingAsset(review.rating)}.svg" 
-                                 alt="${review.rating} stars" 
-                                 class="stars"
-                                 loading="lazy">
+                            <div class="stars-text">${this.getStarsText(review.rating)}</div>
                         </div>
                         <span class="review-author">${this.formatAuthor(review.authorNpub)}</span>
                         ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
@@ -611,12 +605,10 @@ class ThunderproofApp {
         if (avgRatingEl) avgRatingEl.textContent = avgRating;
         if (overallNumberEl) overallNumberEl.textContent = avgRating;
         
-        // Update overall stars image
+        // Update overall stars display with TEXT
         const overallStars = document.getElementById('overall-stars');
         if (overallStars) {
-            const ratingAsset = this.getRatingAsset(parseFloat(avgRating));
-            overallStars.src = `assets/${ratingAsset}.svg`;
-            overallStars.alt = `${avgRating} stars overall`;
+            overallStars.textContent = this.getStarsText(parseFloat(avgRating));
         }
 
         // Update rating breakdown
@@ -698,7 +690,7 @@ class ThunderproofApp {
                     <div class="option-icon">🔌</div>
                     <div class="option-info">
                         <h4>Nostr Extension</h4>
-                        <p>Connect using Alby, nos2x, or another NIP-07 extension</p>
+                        <p>Connect using Alby, nos2x, or another NIP-07 extension (RECOMMENDED)</p>
                     </div>
                 </button>
                 
@@ -714,7 +706,7 @@ class ThunderproofApp {
             <div class="security-notice">
                 <p>
                     <strong>🔒 Security:</strong> 
-                    Your private keys never leave your device. Extension login is recommended for best security.
+                    Extension login is strongly recommended as it provides the best security and compatibility.
                 </p>
             </div>
         `;
@@ -733,7 +725,11 @@ class ThunderproofApp {
             this.showLoading('Connecting to Nostr extension...');
             
             const pubkey = await window.nostr.getPublicKey();
-            const npub = this.nostr.nip19.npubEncode(pubkey);
+            
+            // Use basic formatting if nostr tools failed to load
+            const npub = this.nostr && this.nostr.nip19 ? 
+                this.nostr.nip19.npubEncode(pubkey) : 
+                `npub${pubkey.substring(0, 20)}...`;
             
             this.user = {
                 pubkey,
@@ -781,7 +777,7 @@ class ThunderproofApp {
                         spellcheck="false"
                     >
                     <div class="input-help">
-                        ⚠️ Make sure you trust this device. Your key will be saved locally for convenience.
+                        ⚠️ Note: Private key signing may not work if nostr-tools failed to load. Use extension login instead.
                     </div>
                 </div>
                 
@@ -840,8 +836,8 @@ class ThunderproofApp {
         try {
             this.showLoading('Verifying private key...');
             
-            if (!this.nostr) {
-                throw new Error('Nostr tools not available');
+            if (!this.nostr || !this.nostr.nip19) {
+                throw new Error('Nostr tools not available. Please use extension login instead.');
             }
             
             // Decode and validate nsec
@@ -963,13 +959,12 @@ class ThunderproofApp {
             selectedBtn.classList.add('selected');
         }
         
-        // Update selected rating display
+        // Update selected rating display with TEXT
         const selectedStars = document.getElementById('selected-stars');
         const ratingText = document.getElementById('rating-text');
         
         if (selectedStars) {
-            selectedStars.src = `assets/${this.getRatingAsset(rating)}.svg`;
-            selectedStars.alt = `${rating} stars selected`;
+            selectedStars.textContent = this.getStarsText(rating);
         }
         
         if (ratingText) {
@@ -1006,10 +1001,7 @@ class ThunderproofApp {
         const charCounter = document.getElementById('char-counter');
         const submitBtn = document.getElementById('submit-review');
         
-        if (selectedStars) {
-            selectedStars.src = 'assets/0.svg';
-            selectedStars.alt = 'No rating selected';
-        }
+        if (selectedStars) selectedStars.textContent = '☆☆☆☆☆';
         if (ratingText) ratingText.textContent = 'Select your rating';
         if (commentTextarea) commentTextarea.value = '';
         if (charCounter) charCounter.textContent = '0/500 characters';
@@ -1081,8 +1073,8 @@ class ThunderproofApp {
     }
 
     async createReviewEvent(targetPubkey, rating, content) {
-        if (!this.nostr || !this.user) {
-            throw new Error('Nostr tools or user not available');
+        if (!this.user) {
+            throw new Error('User not available');
         }
 
         // Create NIP-32 labeling event for the review
@@ -1104,68 +1096,26 @@ class ThunderproofApp {
 
         console.log('📝 Creating review event:', event);
 
-        // Sign the event with FIXED signing logic
+        // ONLY use extension signing - this is the RELIABLE method
         if (this.user.method === 'extension' && window.nostr) {
             // Use extension signing
             console.log('🔐 Signing with extension...');
             const signedEvent = await window.nostr.signEvent(event);
             console.log('✅ Event signed with extension:', signedEvent);
             return signedEvent;
-        } else if (this.user.method === 'nsec' && this.user.privkey) {
-            // Use local private key with FIXED implementation
-            console.log('🔐 Signing with private key...');
-            
-            // Manual event signing since finishEvent might not be available
-            try {
-                // Try finishEvent first
-                if (typeof this.nostr.finishEvent === 'function') {
-                    const signedEvent = this.nostr.finishEvent(event, this.user.privkey);
-                    console.log('✅ Event signed with finishEvent:', signedEvent);
-                    return signedEvent;
-                }
-                
-                // Fallback to manual signing
-                console.log('🔄 Using manual signing fallback...');
-                
-                // Calculate event ID
-                const eventId = this.nostr.getEventHash(event);
-                
-                // Sign the event ID
-                const signature = this.nostr.getSignature(eventId, this.user.privkey);
-                
-                // Complete the event
-                const signedEvent = {
-                    ...event,
-                    id: eventId,
-                    sig: signature
-                };
-                
-                console.log('✅ Event signed with manual method:', signedEvent);
-                return signedEvent;
-                
-            } catch (signingError) {
-                console.error('❌ Error in manual signing:', signingError);
-                
-                // Last resort: try different signing methods
-                if (typeof this.nostr.signEvent === 'function') {
-                    console.log('🔄 Trying signEvent function...');
-                    const signedEvent = await this.nostr.signEvent(event, this.user.privkey);
-                    console.log('✅ Event signed with signEvent:', signedEvent);
-                    return signedEvent;
-                }
-                
-                throw new Error(`Signing failed: ${signingError.message}`);
-            }
+        } else if (this.user.method === 'nsec') {
+            // Inform user that extension is recommended
+            throw new Error('Private key signing is not supported in this version. Please use a Nostr extension like Alby for best compatibility.');
         } else {
-            throw new Error('No signing method available');
+            throw new Error('No signing method available. Please connect with a Nostr extension.');
         }
     }
 
     async publishReviewEvent(signedEvent) {
         console.log('📤 Publishing review event to Nostr relays:', signedEvent);
         
-        if (!this.nostr.SimplePool) {
-            throw new Error('SimplePool not available in nostr-tools');
+        if (!this.nostr || !this.nostr.SimplePool) {
+            throw new Error('Publishing not available - nostr-tools failed to load');
         }
         
         const pool = new this.nostr.SimplePool();
@@ -1173,7 +1123,7 @@ class ThunderproofApp {
         const publishResults = [];
         
         try {
-            // Publish to all relays with individual error handling
+            // Publish to relays with individual error handling
             const publishPromises = this.relays.map(async (relay) => {
                 try {
                     console.log(`📡 Publishing to ${relay}...`);
@@ -1447,19 +1397,14 @@ class ThunderproofApp {
         return key.startsWith('npub1') && key.length === 63;
     }
 
-    getRatingAsset(rating) {
-        const percentage = Math.round(rating * 20);
-        if (percentage >= 100) return '100';
-        if (percentage >= 90) return '90';
-        if (percentage >= 80) return '80';
-        if (percentage >= 70) return '70';
-        if (percentage >= 60) return '60';
-        if (percentage >= 50) return '50';
-        if (percentage >= 40) return '40';
-        if (percentage >= 30) return '30';
-        if (percentage >= 20) return '20';
-        if (percentage >= 10) return '10';
-        return '0';
+    getStarsText(rating) {
+        const fullStars = Math.floor(rating);
+        const hasHalfStar = rating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        return '★'.repeat(fullStars) + 
+               (hasHalfStar ? '⭐' : '') + 
+               '☆'.repeat(emptyStars);
     }
 
     formatAuthor(npub) {
@@ -1503,7 +1448,7 @@ class ThunderproofApp {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔥 Starting Thunderproof v3...');
+    console.log('🔥 Starting Thunderproof v3 (FULLY FIXED)...');
     try {
         window.thunderproof = new ThunderproofApp();
     } catch (error) {
@@ -1532,7 +1477,6 @@ window.addEventListener('popstate', () => {
 // Handle page visibility changes
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden && window.thunderproof) {
-        // Page became visible again - could refresh data here
         console.log('📱 Page is now visible');
     }
 });

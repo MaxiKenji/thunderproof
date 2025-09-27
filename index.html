@@ -31,20 +31,14 @@
     
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
-    
-    <!-- Preload Nostr Tools -->
-    <script type="module">
-        window.nostrToolsPromise = import('https://unpkg.com/nostr-tools@2.7.2/lib/esm/index.js')
-            .catch(() => import('https://cdn.skypack.dev/nostr-tools@2.7.2'))
-            .catch(() => import('https://esm.sh/nostr-tools@2.7.2'));
-    </script>
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar">
         <div class="container">
             <div class="nav-brand" id="nav-brand">
-                <img src="assets/logo.svg" alt="Thunderproof Logo" class="logo">
+                <img src="assets/logo.svg" alt="⚡" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                <span style="display: none; font-size: 32px; color: #f7931a;">⚡</span>
                 <div class="brand-text">
                     <span class="brand-name">Thunderproof</span>
                     <span class="brand-tagline">proof of trust</span>
@@ -108,21 +102,21 @@
                 <div class="floating-reviews">
                     <div class="review-card r1">
                         <div class="review-stars">
-                            <img src="assets/100%.svg" alt="5 stars" class="stars">
+                            <div class="stars-text">★★★★★</div>
                         </div>
                         <p>"Excellent Bitcoin service!"</p>
                         <div class="review-author">⚡ Verified</div>
                     </div>
                     <div class="review-card r2">
                         <div class="review-stars">
-                            <img src="assets/80%.svg" alt="4 stars" class="stars">
+                            <div class="stars-text">★★★★☆</div>
                         </div>
                         <p>"Fast Lightning payments"</p>
                         <div class="review-author">⚡ Verified</div>
                     </div>
                     <div class="review-card r3">
                         <div class="review-stars">
-                            <img src="assets/90%.svg" alt="4.5 stars" class="stars">
+                            <div class="stars-text">★★★★⭐</div>
                         </div>
                         <p>"Secure and reliable"</p>
                         <div class="review-author">⚡ Verified</div>
@@ -177,7 +171,7 @@
             <div class="rating-overview">
                 <div class="rating-summary">
                     <div class="rating-display">
-                        <img id="overall-stars" src="assets/0.svg" alt="Overall rating" class="overall-stars">
+                        <div id="overall-stars" class="overall-stars">★★★★★</div>
                         <div class="rating-number" id="overall-number">0.0</div>
                         <div class="rating-label">out of 5 stars</div>
                     </div>
@@ -297,7 +291,8 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
-                    <img src="assets/logo.svg" alt="Thunderproof" class="footer-logo">
+                    <img src="assets/logo.svg" alt="Thunderproof" class="footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                    <span style="display: none; font-size: 32px; color: #f7931a;">⚡</span>
                     <div class="footer-text">
                         <span class="footer-name">Thunderproof</span>
                         <span class="footer-tagline">Proof of trust on Nostr</span>
@@ -352,29 +347,29 @@
                     <label>Your Rating</label>
                     <div class="star-buttons">
                         <button class="star-btn" data-rating="1">
-                            <img src="assets/20%.svg" alt="1 star" class="star-img">
+                            <div class="star-text">★☆☆☆☆</div>
                             <span>1 star</span>
                         </button>
                         <button class="star-btn" data-rating="2">
-                            <img src="assets/40%.svg" alt="2 stars" class="star-img">
+                            <div class="star-text">★★☆☆☆</div>
                             <span>2 stars</span>
                         </button>
                         <button class="star-btn" data-rating="3">
-                            <img src="assets/60%.svg" alt="3 stars" class="star-img">
+                            <div class="star-text">★★★☆☆</div>
                             <span>3 stars</span>
                         </button>
                         <button class="star-btn" data-rating="4">
-                            <img src="assets/80%.svg" alt="4 stars" class="star-img">
+                            <div class="star-text">★★★★☆</div>
                             <span>4 stars</span>
                         </button>
                         <button class="star-btn" data-rating="5">
-                            <img src="assets/100%.svg" alt="5 stars" class="star-img">
+                            <div class="star-text">★★★★★</div>
                             <span>5 stars</span>
                         </button>
                     </div>
                     
                     <div class="selected-rating">
-                        <img id="selected-stars" src="assets/0.svg" alt="Selected rating" class="selected-stars-img">
+                        <div id="selected-stars" class="selected-stars-display">☆☆☆☆☆</div>
                         <span id="rating-text">Select your rating</span>
                     </div>
                 </div>
