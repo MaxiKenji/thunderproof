@@ -1082,78 +1082,59 @@ class ThunderproofApp {
     }
 
     async createReviewEvent(targetPubkey, rating, content) {
-        if (!this.user) {
-            throw new Error('User not available');
-        }
+    if (!this.user) {
+        throw new Error('User not available');
+    }
 
-        const event = {
-            kind: this.REVIEW_KIND,
-            created_at: Math.floor(Date.now() / 1000),
-            tags: [
-                ['L', this.REVIEW_NAMESPACE],
-                ['l', 'review', this.REVIEW_NAMESPACE],
-                ['p', targetPubkey],
-                ['rating', rating.toString()],
-                ['client', 'Thunderproof'],
-                ['t', 'review'],
-                ['alt', `Review: ${rating}/5 stars`]
-            ],
-            content: content,
-            pubkey: this.user.pubkey
-        };
+    const event = {
+        kind: this.REVIEW_KIND,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [
+            ['L', this.REVIEW_NAMESPACE],
+            ['l', 'review', this.REVIEW_NAMESPACE],
+            ['p', targetPubkey],
+            ['rating', rating.toString()],
+            ['client', 'Thunderproof'],
+            ['t', 'review'],
+            ['alt', `Review: ${rating}/5 stars`]
+        ],
+        content: content,
+        pubkey: this.user.pubkey
+    };
 
-        console.log('📝 Creating review event:', event);
+    console.log('📝 Creating review event:', event);
 
-        // Support both login methods
-        if (this.user.method === 'extension' && window.nostr) {
-            console.log('🔐 Signing with extension...');
-            const signedEvent = await window.nostr.signEvent(event);
-            console.log('✅ Event signed with extension');
-            return signedEvent;
+    // Extension signing (working!)
+    if (this.user.method === 'extension' && window.nostr) {
+        console.log('🔐 Signing with extension...');
+        const signedEvent = await window.nostr.signEvent(event);
+        console.log('✅ Event signed with extension');
+        return signedEvent;
+    }
+    
+    // Fixed private key signing
+    if (this.user.method === 'nsec' && this.user.privkey && this.nostr) {
+        console.log('🔐 Signing with private key...');
+        
+        try {
+            // Try finishEvent first (most common)
+            if (this.nostr.finishEvent) {
+                const signedEvent = this.nostr.finishEvent(event, this.user.privkey);
+                console.log('✅ Event signed with finishEvent');
+                return signedEvent;
+            }
             
-        } else if (this.user.method === 'nsec' && this.user.privkey && this.nostr) {
-            console.log('🔐 Signing with private key...');
+            // Try finalizeEvent (newer versions)
+            if (this.nostr.finalizeEvent) {
+                const signedEvent = this.nostr.finalizeEvent(event, this.user.privkey);
+                console.log('✅ Event signed with finalizeEvent');
+                return signedEvent;
+            }
             
-            // Manual event signing for maximum compatibility
-            try {
-                // Calculate event ID
-                const serialized = JSON.stringify([
-                    0,
-                    event.pubkey,
-                    event.created_at,
-                    event.kind,
-                    event.tags,
-                    event.content
-                ]);
-                
-                // Use crypto-js for hashing if available, otherwise use built-in if available
-                let eventId;
-                if (this.nostr.getEventHash) {
-                    eventId = this.nostr.getEventHash(event);
-                } else {
-                    // Fallback: use built-in crypto
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(serialized);
-                    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                    eventId = Array.from(new Uint8Array(hashBuffer))
-                        .map(b => b.toString(16).padStart(2, '0'))
-                        .join('');
-                }
-                
-                // Sign the event
-                let signature;
-                if (this.nostr.getSignature) {
-                    signature = this.nostr.getSignature(eventId, this.user.privkey);
-                } else if (this.nostr.signEvent) {
-                    // Try alternative signing method
-                    const tempEvent = { ...event, id: eventId };
-                    signature = await this.nostr.signEvent(tempEvent, this.user.privkey);
-                    if (typeof signature === 'object' && signature.sig) {
-                        signature = signature.sig;
-                    }
-                } else {
-                    throw new Error('No signing method available');
-                }
+            // Manual signing fallback
+            if (this.nostr.getEventHash && this.nostr.getSignature) {
+                const eventId = this.nostr.getEventHash(event);
+                const signature = this.nostr.getSignature(eventId, this.user.privkey);
                 
                 const signedEvent = {
                     ...event,
@@ -1161,17 +1142,20 @@ class ThunderproofApp {
                     sig: signature
                 };
                 
-                console.log('✅ Event signed with private key');
+                console.log('✅ Event signed manually');
                 return signedEvent;
-                
-            } catch (signingError) {
-                console.error('❌ Private key signing failed:', signingError);
-                throw new Error('Private key signing failed. Please try using a Nostr extension instead.');
             }
-        } else {
-            throw new Error('No signing method available. Please connect with extension or private key.');
+            
+            throw new Error('No signing methods available in nostr-tools');
+            
+        } catch (error) {
+            console.error('❌ Private key signing failed:', error);
+            throw new Error('Private key signing failed. Please try using a Nostr extension like Alby instead.');
         }
     }
+    
+    throw new Error('No signing method available');
+}
 
     async publishReviewEvent(signedEvent) {
         console.log('📤 Publishing review to Nostr relays...');
