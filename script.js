@@ -1,4 +1,4 @@
-// Thunderproof - Complete Nostr Review System with Publishing Fix
+// Thunderproof - Complete Nostr Review System with FIXED Publishing
 class ThunderproofApp {
     constructor() {
         // Application state
@@ -54,27 +54,24 @@ class ThunderproofApp {
 
     async loadNostrTools() {
         try {
-            // Use the preloaded promise from HTML
-            if (window.nostrToolsPromise) {
-                this.nostr = await window.nostrToolsPromise;
-                console.log('✅ Loaded from preloaded promise');
-            } else {
-                // Fallback to direct import
-                const cdns = [
-                    'https://unpkg.com/nostr-tools@2.7.2/lib/esm/index.js',
-                    'https://cdn.skypack.dev/nostr-tools@2.7.2',
-                    'https://esm.sh/nostr-tools@2.7.2'
-                ];
-                
-                for (const cdn of cdns) {
-                    try {
-                        this.nostr = await import(cdn);
-                        console.log(`✅ Loaded from CDN: ${cdn}`);
-                        break;
-                    } catch (error) {
-                        console.warn(`Failed to load from ${cdn}`);
-                        continue;
-                    }
+            // Try to load from CDN with better version handling
+            const cdns = [
+                'https://unpkg.com/nostr-tools@1.17.0/lib/esm/index.js',
+                'https://cdn.skypack.dev/nostr-tools@1.17.0',
+                'https://unpkg.com/nostr-tools@2.7.2/lib/esm/index.js',
+                'https://cdn.skypack.dev/nostr-tools@2.7.2',
+                'https://esm.sh/nostr-tools@2.7.2'
+            ];
+            
+            for (const cdn of cdns) {
+                try {
+                    console.log(`🔄 Trying to load nostr-tools from: ${cdn}`);
+                    this.nostr = await import(cdn);
+                    console.log(`✅ Loaded from CDN: ${cdn}`);
+                    break;
+                } catch (error) {
+                    console.warn(`❌ Failed to load from ${cdn}:`, error);
+                    continue;
                 }
             }
             
@@ -82,7 +79,10 @@ class ThunderproofApp {
                 throw new Error('Could not load nostr-tools from any CDN');
             }
             
-            // Test functionality
+            // Test functionality and check available methods
+            console.log('🔍 Available nostr-tools methods:', Object.keys(this.nostr));
+            
+            // Test basic functionality
             const testKey = this.nostr.generatePrivateKey();
             const testPubkey = this.nostr.getPublicKey(testKey);
             
@@ -91,6 +91,19 @@ class ThunderproofApp {
             }
             
             console.log('✅ Nostr tools tested successfully');
+            
+            // Check if we have the required signing functions
+            const hasFinishEvent = typeof this.nostr.finishEvent === 'function';
+            const hasSignEvent = typeof this.nostr.signEvent === 'function';
+            const hasGetEventHash = typeof this.nostr.getEventHash === 'function';
+            const hasSignature = typeof this.nostr.getSignature === 'function';
+            
+            console.log('🔍 Available signing methods:', {
+                finishEvent: hasFinishEvent,
+                signEvent: hasSignEvent,
+                getEventHash: hasGetEventHash,
+                getSignature: hasSignature
+            });
             
         } catch (error) {
             console.error('Failed to load nostr-tools:', error);
@@ -1091,7 +1104,7 @@ class ThunderproofApp {
 
         console.log('📝 Creating review event:', event);
 
-        // Sign the event
+        // Sign the event with FIXED signing logic
         if (this.user.method === 'extension' && window.nostr) {
             // Use extension signing
             console.log('🔐 Signing with extension...');
@@ -1099,11 +1112,50 @@ class ThunderproofApp {
             console.log('✅ Event signed with extension:', signedEvent);
             return signedEvent;
         } else if (this.user.method === 'nsec' && this.user.privkey) {
-            // Use local private key
+            // Use local private key with FIXED implementation
             console.log('🔐 Signing with private key...');
-            const signedEvent = this.nostr.finishEvent(event, this.user.privkey);
-            console.log('✅ Event signed with private key:', signedEvent);
-            return signedEvent;
+            
+            // Manual event signing since finishEvent might not be available
+            try {
+                // Try finishEvent first
+                if (typeof this.nostr.finishEvent === 'function') {
+                    const signedEvent = this.nostr.finishEvent(event, this.user.privkey);
+                    console.log('✅ Event signed with finishEvent:', signedEvent);
+                    return signedEvent;
+                }
+                
+                // Fallback to manual signing
+                console.log('🔄 Using manual signing fallback...');
+                
+                // Calculate event ID
+                const eventId = this.nostr.getEventHash(event);
+                
+                // Sign the event ID
+                const signature = this.nostr.getSignature(eventId, this.user.privkey);
+                
+                // Complete the event
+                const signedEvent = {
+                    ...event,
+                    id: eventId,
+                    sig: signature
+                };
+                
+                console.log('✅ Event signed with manual method:', signedEvent);
+                return signedEvent;
+                
+            } catch (signingError) {
+                console.error('❌ Error in manual signing:', signingError);
+                
+                // Last resort: try different signing methods
+                if (typeof this.nostr.signEvent === 'function') {
+                    console.log('🔄 Trying signEvent function...');
+                    const signedEvent = await this.nostr.signEvent(event, this.user.privkey);
+                    console.log('✅ Event signed with signEvent:', signedEvent);
+                    return signedEvent;
+                }
+                
+                throw new Error(`Signing failed: ${signingError.message}`);
+            }
         } else {
             throw new Error('No signing method available');
         }
