@@ -1,4 +1,4 @@
-// Thunderproof - COMPLETE VERSION with FIXED Shields & Features
+// Thunderproof - COMPLETE VERSION with Shields & Improved Features
 class ThunderproofApp {
     constructor() {
         // Application state
@@ -20,7 +20,7 @@ class ThunderproofApp {
         this.REVIEW_KIND = 1985;
         this.REVIEW_NAMESPACE = 'thunderproof';
         
-        // FIXED: Shield assets mapping with proper paths
+        // Shield assets mapping (0% to 100% in 10% steps)
         this.shieldAssets = {
             0: 'assets/0%.svg',
             10: 'assets/10%.svg', 
@@ -39,7 +39,7 @@ class ThunderproofApp {
     }
 
     async init() {
-        console.log('🚀 Initializing Thunderproof v3 (SHIELDS FIXED)...');
+        console.log('🚀 Initializing Thunderproof v3 (SHIELDS & ENHANCED)...');
         
         try {
             await this.loadNostrTools();
@@ -634,7 +634,7 @@ class ThunderproofApp {
         `).join('');
     }
 
-    // Open author profile when clicked
+    // NEW: Open author profile when clicked
     async openAuthorProfile(authorNpub) {
         console.log('🔍 Opening author profile:', authorNpub);
         
@@ -679,7 +679,7 @@ class ThunderproofApp {
         this.updateExternalLinks();
     }
 
-    // Update external profile links
+    // NEW: Update external profile links
     updateExternalLinks() {
         if (!this.currentProfile) return;
 
@@ -750,7 +750,7 @@ class ThunderproofApp {
         this.displayReviews();
     }
 
-    // Connect methods with disabled options
+    // UPDATED: Connect methods with disabled options
     showConnectModal() {
         const modal = document.getElementById('connect-modal');
         this.showConnectMethods();
@@ -1010,7 +1010,6 @@ class ThunderproofApp {
                 if (this.user.picture) {
                     userAvatar.src = this.user.picture;
                 } else {
-                    // FIXED: Use placeholder asset instead of emoji
                     userAvatar.src = 'assets/placeholder_profilepicture.png';
                 }
             }
@@ -1165,7 +1164,7 @@ class ThunderproofApp {
         }
     }
 
-    // Private Key Signing Implementation
+    // FIXED: Private Key Signing Implementation
     async createReviewEvent(targetPubkey, rating, content) {
         if (!this.user) {
             throw new Error('User not available');
@@ -1197,9 +1196,9 @@ class ThunderproofApp {
             return signedEvent;
         }
         
-        // Private key signing
+        // FIXED: Private key signing
         if (this.user.method === 'nsec' && this.user.privkey && this.nostr) {
-            console.log('🔐 Signing with private key...');
+            console.log('🔐 Signing with private key (FIXED VERSION)...');
             
             try {
                 // Try finishEvent first (most reliable)
@@ -1403,7 +1402,7 @@ class ThunderproofApp {
         return publishResults;
     }
 
-    // Share functionality
+    // IMPROVED: Share functionality
     showShareModal() {
         if (!this.currentProfile) return;
         
@@ -1540,34 +1539,33 @@ class ThunderproofApp {
         window.history.replaceState({}, document.title, url);
     }
 
-    // FIXED: Shield-based rating display with proper paths
-    getShieldsDisplay(rating) {
-        const shields = [];
-        const fullShields = Math.floor(rating);
-        const hasPartialShield = (rating % 1) > 0;
-        
-        // Add full shields (100%)
-        for (let i = 0; i < fullShields; i++) {
-            shields.push(`<img src="${this.shieldAssets[100]}" alt="full shield" width="20" height="20">`);
-        }
-        
-        // Add partial shield if needed
-        if (hasPartialShield && fullShields < 5) {
-            const decimalPart = rating % 1;
-            // Map decimal to nearest 10% increment
-            const percentage = Math.round(decimalPart * 10) * 10;
-            const assetName = this.shieldAssets[percentage] || this.shieldAssets[0];
-            shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
-        }
-        
-        // Add empty shields to make 5 total
-        const remainingShields = 5 - shields.length;
-        for (let i = 0; i < remainingShields; i++) {
-            shields.push(`<img src="${this.shieldAssets[0]}" alt="empty shield" width="20" height="20">`);
-        }
-        
-        return shields.join('');
+    // NEW: Shield-based rating display
+  getShieldsDisplay(rating) {
+    const shields = [];
+    const fullShields = Math.floor(rating);
+    const hasPartialShield = (rating % 1) > 0;
+    const partialPercentage = Math.round((rating % 1) * 100);
+    
+    // Add full shields
+    for (let i = 0; i < fullShields; i++) {
+        shields.push(`<img src="assets/100%.svg" alt="full shield" width="20" height="20">`);
     }
+    
+    // Add partial shield if needed
+    if (hasPartialShield && fullShields < 5) {
+        const closestPercentage = Math.round(partialPercentage / 10) * 10;
+        const assetName = `assets/${closestPercentage}%.svg`;
+        shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
+    }
+    
+    // Add empty shields to make 5 total
+    const remainingShields = 5 - shields.length;
+    for (let i = 0; i < remainingShields; i++) {
+        shields.push(`<img src="assets/0%.svg" alt="empty shield" width="20" height="20">`);
+    }
+    
+    return shields.join('');
+}
 
     // UI Helpers
     showModal(modal) {
@@ -1659,15 +1657,14 @@ class ThunderproofApp {
         return div.innerHTML;
     }
 
-    // FIXED: Use placeholder asset instead of emoji
     generateDefaultAvatar() {
-        return 'assets/placeholder_profilepicture.png';
+        return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="40" fill="%2300D4AA"/><text x="40" y="48" text-anchor="middle" font-size="24" fill="white">⚡</text></svg>`;
     }
 }
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔥 Starting Thunderproof v3 (SHIELDS FIXED)...');
+    console.log('🔥 Starting Thunderproof v3 (SHIELDS & ENHANCED)...');
     try {
         window.thunderproof = new ThunderproofApp();
     } catch (error) {
