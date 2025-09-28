@@ -97,6 +97,30 @@ class ThunderproofApp {
     }
 
     setupEventListeners() {
+
+        // Add after other event listeners
+document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    
+    try {
+        await navigator.clipboard.writeText(this.myPubkey);
+        this.showToast('Public key copied to clipboard!', 'success');
+        
+        // Update link text temporarily
+        const link = e.target;
+        const originalText = link.textContent;
+        link.textContent = 'Copied!';
+        
+        setTimeout(() => {
+            link.textContent = originalText;
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Failed to copy public key:', error);
+        this.showToast('Failed to copy public key', 'error');
+    }
+});
+
         // Logo click to go home
         const logoSection = document.querySelector('.logo-section');
         logoSection?.addEventListener('click', () => this.goHome());
@@ -580,17 +604,19 @@ class ThunderproofApp {
                 `${event.pubkey.substring(0, 8)}...`;
 
             return {
-                id: event.id,
-                target: targetTag[1],
-                author: event.pubkey,
-                authorNpub: authorNpub,
-                rating: rating,
-                content: event.content || '',
-                created_at: event.created_at,
-                verified: false,
-                signature: event.sig,
-                rawEvent: event
-            };
+    id: event.id,
+    target: targetTag[1],
+    author: event.pubkey,
+    authorNpub: authorNpub,
+    authorPicture: null, // Will be populated later
+    rating: rating,
+    content: event.content || '',
+    created_at: event.created_at,
+    verified: false,
+    signature: event.sig,
+    rawEvent: event
+};
+
         } catch (error) {
             console.error('Error processing review event:', error);
             return null;
@@ -612,15 +638,21 @@ class ThunderproofApp {
         noReviews.classList.add('hidden');
         reviewsList.classList.remove('hidden');
 
-        reviewsList.innerHTML = this.currentReviews.map(review => `
-            <div class="review-item" data-rating="${review.rating}">
-                <div class="review-header">
-                    <div class="review-meta">
-                        <div class="review-rating">
-                            <div class="shields-text">${this.getShieldsDisplay(review.rating)}</div>
-                        </div>
-                        <span class="review-author" onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">${this.formatAuthor(review.authorNpub)}</span>
-                        ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
+ reviewsList.innerHTML = this.currentReviews.map(review => `
+    <div class="review-item" data-rating="${review.rating}">
+        <div class="review-header">
+            <div class="review-meta">
+                <img src="${review.authorPicture || 'assets/placeholder_profilepicture.png'}" 
+                     alt="Reviewer" 
+                     class="review-author-avatar"
+                     onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">
+                <div class="review-content-meta">
+                    <div class="review-rating">
+                        <div class="shields-text">${this.getShieldsDisplay(review.rating)}</div>
+                    </div>
+                    <span class="review-author" onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">${this.formatAuthor(review.authorNpub)}</span>
+                </div>
+ ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
                     </div>
                     <span class="review-date">${this.formatDate(review.created_at)}</span>
                 </div>
@@ -1695,3 +1727,32 @@ document.addEventListener('visibilitychange', () => {
         console.log('📱 Page is now visible');
     }
 });
+// Add after other event listeners
+document.getElementById('donate-btn')?.addEventListener('click', () => {
+    window.open('https://btcpay.btc.aw/api/v1/invoices?storeId=EhvLpeoGjxPkshjeyVPbzjoJfQd9F1LiuCKEfXuefpkX&checkoutDesc=Support&browserRedirect=https://maxikenji.github.io/bitcoin-calendar/&currency=EUR&defaultPaymentMethod=BTC_LNURLPAY', '_blank');
+});
+// Add after other event listeners
+document.getElementById('how-it-works-link')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    
+    // If we're on a profile page, go back to home first
+    if (!document.getElementById('profile-section').classList.contains('hidden')) {
+        this.showHeroSection();
+        
+        // Wait for transition, then scroll
+        setTimeout(() => {
+            const howItWorksSection = document.querySelector('.how-it-works');
+            if (howItWorksSection) {
+                howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 300);
+    } else {
+        // Already on home page, just scroll
+        const howItWorksSection = document.querySelector('.how-it-works');
+        if (howItWorksSection) {
+            howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+});
+// Add after other configuration
+this.myPubkey = 'npub1your_public_key_here_replace_with_yours_1234567890abcdef';
