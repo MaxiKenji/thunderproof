@@ -3,130 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thunderproof - Nostr Review System</title>
-    <meta name="description" content="Decentralized review system built on Nostr protocol for authentic Bitcoin ecosystem feedback">
-    <meta name="keywords" content="nostr, bitcoin, lightning, reviews, decentralized, cryptographic">
+    <title>Thunderproof - Bitcoin merchants you can trust</title>
+    <meta name="description" content="Discover and share verified reviews using the Nostr protocol for Bitcoin ecosystem">
     
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://thunderproof.org/">
-    <meta property="og:title" content="Thunderproof - Authentic Bitcoin Reviews">
-    <meta property="og:description" content="Decentralized review system built on Nostr protocol">
-    <meta property="og:image" content="https://thunderproof.org/assets/logo.svg">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://thunderproof.org/">
-    <meta property="twitter:title" content="Thunderproof - Authentic Bitcoin Reviews">
-    <meta property="twitter:description" content="Decentralized review system built on Nostr protocol">
-    <meta property="twitter:image" content="https://thunderproof.org/assets/logo.svg">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    
-    <!-- Source Sans 3 Font -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
+    <!-- Header -->
+    <header class="header">
         <div class="container">
-            <div class="nav-brand" id="nav-brand">
-                <img src="assets/logo.svg" alt="⚡" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                <span style="display: none; font-size: 32px; color: #f7931a;">⚡</span>
-                <div class="brand-text">
-                    <span class="brand-name">Thunderproof</span>
-                    <span class="brand-tagline">proof of trust</span>
+            <div class="header-content">
+                <div class="logo-section">
+                    <!-- Placeholder SVG for logo -->
+                    <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32">
+                        <rect width="32" height="32" rx="8" fill="#00D4AA"/>
+                        <text x="16" y="20" text-anchor="middle" font-size="16" fill="white">T</text>
+                    </svg>
+                    <span class="logo-text">Thunderproof</span>
                 </div>
-            </div>
-            
-            <div class="nav-actions">
-                <button id="connect-btn" class="btn-connect">
-                    <span class="btn-icon">⚡</span>
-                    Connect Nostr
-                </button>
-                <div id="user-info" class="user-info hidden">
-                    <img id="user-avatar" src="" alt="User" class="user-avatar">
-                    <span id="user-name" class="user-name">Anonymous</span>
-                    <button id="disconnect-btn" class="btn-disconnect">Disconnect</button>
+                
+                <div class="header-actions">
+                    <div class="status-badge">
+                        This is in MVP, but free to start! Public
+                    </div>
+                    <button id="connect-btn" class="connect-button">
+                        <span class="connect-icon">🔌</span>
+                        Connect Nostr
+                    </button>
+                    
+                    <!-- User info (hidden by default) -->
+                    <div id="user-info" class="user-info hidden">
+                        <img id="user-avatar" src="" alt="User" class="user-avatar">
+                        <span id="user-name" class="user-name">Anonymous</span>
+                        <button id="disconnect-btn" class="disconnect-btn">Disconnect</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    Authentic Reviews for the <span class="highlight">Bitcoin Ecosystem</span>
-                </h1>
-                <p class="hero-subtitle">
-                    Discover and share verified reviews using the Nostr protocol. 
-                    No fake reviews, no manipulation, just proof of trust.
-                </p>
-                
-                <div class="search-section">
-                    <div class="search-box">
-                        <input 
-                            type="text" 
-                            id="search-input" 
-                            class="search-input" 
-                            placeholder="Enter Nostr public key (npub1...)"
-                            spellcheck="false"
-                            autocomplete="off"
-                        >
-                        <button id="search-btn" class="search-btn">
-                            <span class="search-icon">🔍</span>
-                            Search
-                        </button>
-                    </div>
+            <div class="hero-layout">
+                <!-- Left Content -->
+                <div class="hero-content">
+                    <h1 class="hero-title">
+                        Bitcoin merchants you can <span class="highlight">trust</span>.
+                    </h1>
+                    <p class="hero-subtitle">
+                        Discover and share verified reviews using the Nostr protocol.
+                    </p>
+                    <p class="hero-description">
+                        No fake reviews, no scams, no manipulation, make confident purchases from 
+                        anonymous providers backed by authentic community reviews.
+                    </p>
                     
-                    <div class="search-examples">
-                        <span class="examples-label">Try examples:</span>
-                        <div class="example-buttons">
-                            <button class="example-btn" data-npub="npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m">Jack Dorsey</button>
-                            <button class="example-btn" data-npub="npub15dqlghlewk84wz3pkqqvzl2w2w36f97g89ljds8x6c094nlu02vqjllm5m">Matt Odell</button>
-                            <button class="example-btn" data-npub="npub104fpzfgtc4h272p66uye2nhjes622x7dduk97g8re5h8gmmv2pnsqdq2a2">MaxiKenji</button>
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <div class="search-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="search-input" 
+                                class="search-input" 
+                                placeholder="Enter Nostr public key (npub1...)"
+                                spellcheck="false"
+                                autocomplete="off"
+                            >
+                            <button id="search-btn" class="search-button">
+                                Search
+                            </button>
+                        </div>
+                        
+                        <!-- Example buttons -->
+                        <div class="search-examples">
+                            <span class="examples-label">Try examples:</span>
+                            <div class="example-buttons">
+                                <button class="example-btn" data-npub="npub1sg6plzptd64u62a878hep2kev88swjh3tw00gjsfl8f237lmu63q0uf63m">Jack Dorsey</button>
+                                <button class="example-btn" data-npub="npub15dqlghlewk84wz3pkqqvzl2w2w36f97g89ljds8x6c094nlu02vqjllm5m">Matt Odell</button>
+                                <button class="example-btn" data-npub="npub104fpzfgtc4h272p66uye2nhjes622x7dduk97g8re5h8gmmv2pnsqdq2a2">MaxiKenji</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="hero-visual">
-                <div class="floating-reviews">
-                    <div class="review-card r1">
-                        <div class="review-stars">
-                            <div class="stars-text">★★★★★</div>
+                
+                <!-- Right Illustration -->
+                <div class="hero-illustration">
+                    <!-- Main illustration placeholder -->
+                    <div class="illustration-container">
+                        <!-- Rating badge -->
+                        <div class="rating-badge">
+                            <!-- Placeholder SVG -->
+                            <svg width="24" height="24" viewBox="0 0 24 24">
+                                <rect width="24" height="24" rx="12" fill="#00D4AA"/>
+                                <text x="12" y="16" text-anchor="middle" font-size="12" fill="white">4.7</text>
+                            </svg>
+                            <span>4.7</span>
                         </div>
-                        <p>"Excellent Bitcoin service!"</p>
-                        <div class="review-author">⚡ Verified</div>
-                    </div>
-                    <div class="review-card r2">
-                        <div class="review-stars">
-                            <div class="stars-text">★★★★☆</div>
+                        
+                        <!-- Person illustration placeholder -->
+                        <div class="person-illustration">
+                            <svg width="200" height="200" viewBox="0 0 200 200">
+                                <rect width="200" height="200" rx="100" fill="#E5E7EB"/>
+                                <text x="100" y="110" text-anchor="middle" font-size="24" fill="#6B7280">Person</text>
+                            </svg>
                         </div>
-                        <p>"Fast Lightning payments"</p>
-                        <div class="review-author">⚡ Verified</div>
-                    </div>
-                    <div class="review-card r3">
-                        <div class="review-stars">
-                            <div class="stars-text">★★★★⭐</div>
+                        
+                        <!-- Review window placeholder -->
+                        <div class="review-window">
+                            <div class="window-header">
+                                <span class="window-title">Thunderproof</span>
+                            </div>
+                            <div class="window-content">
+                                <div class="stars-display">★★★★★</div>
+                                <p class="review-text">Super fast merchant, I love 
+                                that they're inclusive and Highly recommend! Can highly recommend!</p>
+                            </div>
                         </div>
-                        <p>"Secure and reliable"</p>
-                        <div class="review-author">⚡ Verified</div>
+                        
+                        <!-- Floating elements -->
+                        <div class="floating-element verification">
+                            <span class="verification-text">ZAP verified</span>
+                        </div>
+                        
+                        <div class="floating-element authenticity">
+                            <span class="authenticity-text">Authentic Relationship</span>
+                        </div>
+                        
+                        <!-- Review stats -->
+                        <div class="review-stats">
+                            <div class="stars-row">★★★★⭐</div>
+                            <span class="stats-text">4.7 Rating   based on 21 reviews</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Profile Results Section -->
+    <!-- How It Works Section -->
+    <section class="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">Four simple steps to authentic reviews</p>
+            </div>
+            
+            <div class="steps-grid">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="64" height="64" viewBox="0 0 64 64">
+                            <rect width="64" height="64" rx="32" fill="#00D4AA"/>
+                            <text x="32" y="38" text-anchor="middle" font-size="20" fill="white">🔍</text>
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Search Profile</h3>
+                    <p class="step-description">Enter any Nostr public key (npub) to find a profile and see existing reviews</p>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="64" height="64" viewBox="0 0 64 64">
+                            <rect width="64" height="64" rx="32" fill="#00D4AA"/>
+                            <text x="32" y="38" text-anchor="middle" font-size="20" fill="white">🔗</text>
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Connect Nostr</h3>
+                    <p class="step-description">Login with your Nostr account using extensions like Alby or your private key</p>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="64" height="64" viewBox="0 0 64 64">
+                            <rect width="64" height="64" rx="32" fill="#00D4AA"/>
+                            <text x="32" y="38" text-anchor="middle" font-size="20" fill="white">⭐</text>
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Leave Review</h3>
+                    <p class="step-description">Rate your experience with 1-5 stars and write detailed feedback</p>
+                </div>
+                
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="64" height="64" viewBox="0 0 64 64">
+                            <rect width="64" height="64" rx="32" fill="#00D4AA"/>
+                            <text x="32" y="38" text-anchor="middle" font-size="20" fill="white">📤</text>
+                        </svg>
+                    </div>
+                    <h3 class="step-title">Share & Embed</h3>
+                    <p class="step-description">Reviews are published to Nostr relays and can be shared anywhere</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Thunderproof Section -->
+    <section class="why-thunderproof">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Thunderproof?</h2>
+                <p class="section-subtitle">Built on Nostr protocol for censorship-resistant, authentic reviews.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <rect width="48" height="48" rx="12" fill="#00D4AA"/>
+                            <text x="24" y="30" text-anchor="middle" font-size="16" fill="white">🛡️</text>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Trust unknown with confidence</h3>
+                    <p class="feature-description">
+                        With us, every review is cryptographically signed and verified through Lightning Network activity. Anonymous doesn't mean untrustworthy when the community vouches for them.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <rect width="48" height="48" rx="12" fill="#00D4AA"/>
+                            <text x="24" y="30" text-anchor="middle" font-size="16" fill="white">📱</text>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Embed Reviews Anywhere</h3>
+                    <p class="feature-description">
+                        Add Thunderproof review widgets to your website or share profiles links across platforms. Let your reputation follow you everywhere in the Bitcoin ecosystem, building trust beyond large marketplaces.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <rect width="48" height="48" rx="12" fill="#00D4AA"/>
+                            <text x="24" y="30" text-anchor="middle" font-size="16" fill="white">⚡</text>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Reward Your Reviewers</h3>
+                    <p class="feature-description">
+                        Incentivize honest feedback by rewarding customers who write reviews for you. Zap sats microparments to build loyalty, encourage authentic customer feedback and build a loyal community around your products or services.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <rect width="48" height="48" rx="12" fill="#00D4AA"/>
+                            <text x="24" y="30" text-anchor="middle" font-size="16" fill="white">🔒</text>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Censorship-Resistant Reviews</h3>
+                    <p class="feature-description">
+                        Built on Nostr protocol, these reviews can't be deleted, manipulated, or censored by any single entity. Your reputation is stored decentralized relays, making it truly yours.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <!-- Placeholder SVG -->
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <rect width="48" height="48" rx="12" fill="#00D4AA"/>
+                            <text x="24" y="30" text-anchor="middle" font-size="16" fill="white">⚡</text>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Lightning-Verified Authenticity</h3>
+                    <p class="feature-description">
+                        Every reviewer must demonstrate Lightning Network activity to prevent fake reviews. Only real Bitcoin users can leave feedback, ensuring authentic and valuable insights for your purchase decisions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rating Section -->
+    <section class="rating-section">
+        <div class="container">
+            <div class="rating-container">
+                <div class="rating-stars">
+                    <div class="star-icons">
+                        <!-- Placeholder SVG stars -->
+                        <svg width="40" height="40" viewBox="0 0 40 40">
+                            <rect width="40" height="40" rx="8" fill="#00D4AA"/>
+                            <text x="20" y="26" text-anchor="middle" font-size="20" fill="white">⭐</text>
+                        </svg>
+                        <svg width="40" height="40" viewBox="0 0 40 40">
+                            <rect width="40" height="40" rx="8" fill="#00D4AA"/>
+                            <text x="20" y="26" text-anchor="middle" font-size="20" fill="white">⭐</text>
+                        </svg>
+                        <svg width="40" height="40" viewBox="0 0 40 40">
+                            <rect width="40" height="40" rx="8" fill="#00D4AA"/>
+                            <text x="20" y="26" text-anchor="middle" font-size="20" fill="white">⭐</text>
+                        </svg>
+                        <svg width="40" height="40" viewBox="0 0 40 40">
+                            <rect width="40" height="40" rx="8" fill="#00D4AA"/>
+                            <text x="20" y="26" text-anchor="middle" font-size="20" fill="white">⭐</text>
+                        </svg>
+                        <svg width="40" height="40" viewBox="0 0 40 40">
+                            <rect width="40" height="40" rx="8" fill="#00D4AA"/>
+                            <text x="20" y="26" text-anchor="middle" font-size="20" fill="white">⭐</text>
+                        </svg>
+                    </div>
+                </div>
+                
+                <h2 class="rating-title">How do you rate our project?</h2>
+                <p class="rating-subtitle">A lot of ideas and implementations are cooking...</p>
+                <p class="rating-cta">Feel free to connect on nostr</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <!-- Placeholder SVG for logo -->
+                    <svg class="footer-logo" width="24" height="24" viewBox="0 0 24 24">
+                        <rect width="24" height="24" rx="6" fill="#00D4AA"/>
+                        <text x="12" y="16" text-anchor="middle" font-size="12" fill="white">T</text>
+                    </svg>
+                    <span class="footer-brand-text">Thunderproof</span>
+                </div>
+                
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <a href="#" class="footer-link">How it Works</a>
+                        <a href="https://github.com/MaxiKenji/thunderproof-v3" class="footer-link">GitHub</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Connect</h4>
+                        <a href="#" class="footer-link">Primal</a>
+                        <a href="#" class="footer-link">Nostr</a>
+                    </div>
+                    
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Donate</h4>
+                        <a href="#" class="footer-link">sats</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Thunderproof. Published freely to the Bitcoin community.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Profile Results Section (Hidden by default) -->
     <section id="profile-section" class="profile-section hidden">
         <div class="container">
             <button id="back-btn" class="back-btn">
@@ -206,133 +448,7 @@
         </div>
     </section>
 
-    <!-- About Section -->
-    <section class="about-section">
-        <div class="container">
-            <h2>Why Thunderproof?</h2>
-            <p class="section-subtitle">Built on Nostr protocol for censorship-resistant, authentic reviews</p>
-            
-            <div class="features-grid">
-                <div class="feature">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Decentralized</h3>
-                    <p>Reviews stored on Nostr relays, not controlled by any single entity</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Lightning Verified</h3>
-                    <p>Reviewers verified through Lightning activity to prevent fake reviews</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🛡️</div>
-                    <h3>Cryptographically Signed</h3>
-                    <p>Every review is signed with Nostr keys - impossible to fake or manipulate</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🔗</div>
-                    <h3>Embeddable</h3>
-                    <p>Share profiles or embed review widgets on any website</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Bitcoin Focused</h3>
-                    <p>Designed specifically for Bitcoin and Lightning ecosystem services</p>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">📱</div>
-                    <h3>Easy to Use</h3>
-                    <p>Simple interface powered by Nostr wallet extensions</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section class="how-section">
-        <div class="container">
-            <h2>How It Works</h2>
-            <p class="section-subtitle">Four simple steps to authentic reviews</p>
-            
-            <div class="steps-grid">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Search Profile</h3>
-                    <p>Enter any Nostr public key (npub) to find a profile and see existing reviews</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Connect Nostr</h3>
-                    <p>Login with your Nostr account using extensions like Alby or your private key</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Leave Review</h3>
-                    <p>Rate your experience with 1-5 stars and write detailed feedback</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <h3>Share & Embed</h3>
-                    <p>Your review is published to Nostr relays and can be shared anywhere</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <img src="assets/logo.svg" alt="Thunderproof" class="footer-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                    <span style="display: none; font-size: 32px; color: #f7931a;">⚡</span>
-                    <div class="footer-text">
-                        <span class="footer-name">Thunderproof</span>
-                        <span class="footer-tagline">Proof of trust on Nostr</span>
-                    </div>
-                </div>
-                
-                <div class="footer-links">
-                    <div class="link-group">
-                        <h4>Product</h4>
-                        <a href="#features">Features</a>
-                        <a href="#how-it-works">How it Works</a>
-                        <a href="https://github.com/MaxiKenji/thunderproof-v3" target="_blank">GitHub</a>
-                    </div>
-                    
-                    <div class="link-group">
-                        <h4>Protocol</h4>
-                        <a href="https://nostr.com" target="_blank">About Nostr</a>
-                        <a href="https://lightning.network" target="_blank">Lightning Network</a>
-                        <a href="https://bitcoin.org" target="_blank">Bitcoin</a>
-                    </div>
-                    
-                    <div class="link-group">
-                        <h4>Community</h4>
-                        <a href="https://nostr.band" target="_blank">Nostr.band</a>
-                        <a href="https://stacker.news" target="_blank">Stacker News</a>
-                        <a href="https://snort.social" target="_blank">Snort</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Thunderproof. Built on Nostr protocol for the Bitcoin community.</p>
-                <div class="footer-social">
-                    <a href="#" class="social-link" title="Lightning">⚡</a>
-                    <a href="#" class="social-link" title="Bitcoin">₿</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-
+    <!-- Modals -->
     <!-- Add Review Modal -->
     <div id="review-modal" class="modal hidden">
         <div class="modal-overlay"></div>
@@ -456,30 +572,7 @@
             </div>
             
             <div class="modal-body" id="connect-modal-body">
-                <div class="connect-options">
-                    <button class="connect-option primary" id="connect-extension">
-                        <div class="option-icon">🔌</div>
-                        <div class="option-info">
-                            <h4>Nostr Extension</h4>
-                            <p>Connect using Alby, nos2x, or another NIP-07 extension</p>
-                        </div>
-                    </button>
-                    
-                    <button class="connect-option" id="connect-key">
-                        <div class="option-icon">🔑</div>
-                        <div class="option-info">
-                            <h4>Private Key</h4>
-                            <p>Enter your nsec private key manually (stored locally)</p>
-                        </div>
-                    </button>
-                </div>
-                
-                <div class="security-notice">
-                    <p>
-                        <strong>🔒 Security:</strong> 
-                        Your private keys never leave your device. Extension login is recommended for best security.
-                    </p>
-                </div>
+                <!-- Content will be populated by JavaScript -->
             </div>
         </div>
     </div>
