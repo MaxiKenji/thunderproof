@@ -793,7 +793,6 @@ body {
 }
 
 .logo-icon {
-    width: var(--space-36);
     height: var(--space-36);
 }
 
@@ -995,7 +994,7 @@ body {
     transition: all var(--duration-fast) var(--ease-standard);
     border-radius: 8px;
 border: 1px solid var(--Tertiary-Neutral-stroke, #EEE);
-background: var( #EDF8F8);
+background: #EDF8F8;
 }
 
 .example-btn:hover {
@@ -1229,8 +1228,10 @@ background: var( #EDF8F8);
     padding: var(--space-32);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--color-card-border);
+    display: flex;
     flex-direction: column; 
     align-items: center;
+    
 }
 
 .feature-icon {
@@ -1318,8 +1319,8 @@ background: var( #EDF8F8);
 }
 
 .footer-logo {
-    width: var(--space-24);
-    height: var(--space-24);
+   
+    height: var(--space-36);
 }
 
 .footer-brand-text {
@@ -1346,7 +1347,7 @@ background: var( #EDF8F8);
 }
 
 .footer-link {
-    color: var(--color-text-secondary);
+    color: #626C71;
     text-decoration: none;
     font-size: var(--font-size-base);
     transition: color var(--duration-fast) var(--ease-standard);
