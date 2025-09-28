@@ -1,4 +1,4 @@
-// Thunderproof - COMPLETE WORKING VERSION (All Login Methods + New UI)
+// Thunderproof - COMPLETE VERSION with Shields & Improved Features
 class ThunderproofApp {
     constructor() {
         // Application state
@@ -20,11 +20,26 @@ class ThunderproofApp {
         this.REVIEW_KIND = 1985;
         this.REVIEW_NAMESPACE = 'thunderproof';
         
+        // Shield assets mapping (0% to 100% in 10% steps)
+        this.shieldAssets = {
+            0: '0%.svg',
+            10: '10%.svg', 
+            20: '20%.svg',
+            30: '30%.svg',
+            40: '40%.svg',
+            50: '50%.svg',
+            60: '60%.svg',
+            70: '70%.svg',
+            80: '80%.svg',
+            90: '90%.svg',
+            100: '100%.svg'
+        };
+        
         this.init();
     }
 
     async init() {
-        console.log('🚀 Initializing Thunderproof v3 (COMPLETE VERSION)...');
+        console.log('🚀 Initializing Thunderproof v3 (SHIELDS & ENHANCED)...');
         
         try {
             await this.loadNostrTools();
@@ -49,9 +64,7 @@ class ThunderproofApp {
             // Load nostr-tools with crypto libraries
             const loadAttempts = [
                 async () => {
-                    // Try to load newer version with crypto support
                     const nostr = await import('https://esm.sh/nostr-tools@2.7.2');
-                    // Load secp256k1 for proper signing
                     window.secp256k1 = await import('https://esm.sh/@noble/secp256k1@2.0.0');
                     return nostr;
                 },
@@ -160,8 +173,8 @@ class ThunderproofApp {
     }
 
     setupReviewForm() {
-        // Star rating buttons
-        document.querySelectorAll('.star-btn').forEach(btn => {
+        // Shield rating buttons
+        document.querySelectorAll('.shield-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const rating = parseInt(e.currentTarget.dataset.rating);
                 this.selectRating(rating);
@@ -189,6 +202,14 @@ class ThunderproofApp {
     }
 
     setupShareListeners() {
+        // Setup share tabs
+        document.querySelectorAll('.share-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabId = e.currentTarget.dataset.tab;
+                this.switchShareTab(tabId);
+            });
+        });
+
         document.getElementById('copy-url')?.addEventListener('click', () => this.copyToClipboard('share-url'));
         document.getElementById('copy-embed')?.addEventListener('click', () => this.copyToClipboard('embed-code'));
 
@@ -196,6 +217,20 @@ class ThunderproofApp {
         ['embed-width', 'embed-height', 'embed-max'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', () => this.updateEmbedCode());
         });
+    }
+
+    switchShareTab(tabId) {
+        // Update tab buttons
+        document.querySelectorAll('.share-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+
+        // Update tab content
+        document.querySelectorAll('.share-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabId}-tab`).classList.add('active');
     }
 
     checkSavedLogin() {
@@ -582,9 +617,9 @@ class ThunderproofApp {
                 <div class="review-header">
                     <div class="review-meta">
                         <div class="review-rating">
-                            <div class="stars-text">${this.getStarsText(review.rating)}</div>
+                            <div class="shields-text">${this.getShieldsDisplay(review.rating)}</div>
                         </div>
-                        <span class="review-author">${this.formatAuthor(review.authorNpub)}</span>
+                        <span class="review-author" onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">${this.formatAuthor(review.authorNpub)}</span>
                         ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
                     </div>
                     <span class="review-date">${this.formatDate(review.created_at)}</span>
@@ -597,6 +632,26 @@ class ThunderproofApp {
                 </div>
             </div>
         `).join('');
+    }
+
+    // NEW: Open author profile when clicked
+    async openAuthorProfile(authorNpub) {
+        console.log('🔍 Opening author profile:', authorNpub);
+        
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.value = authorNpub;
+        }
+        
+        // Show loading immediately
+        this.showLoading('Loading author profile...');
+        
+        try {
+            await this.handleSearch();
+        } catch (error) {
+            console.error('Error opening author profile:', error);
+            this.showToast('Failed to load author profile', 'error');
+        }
     }
 
     updateProfileStats() {
@@ -613,12 +668,31 @@ class ThunderproofApp {
         if (avgRatingEl) avgRatingEl.textContent = avgRating;
         if (overallNumberEl) overallNumberEl.textContent = avgRating;
         
-        const overallStars = document.getElementById('overall-stars');
-        if (overallStars) {
-            overallStars.textContent = this.getStarsText(parseFloat(avgRating));
+        // Update shields display
+        const overallShields = document.getElementById('overall-shields');
+        if (overallShields) {
+            const rating = parseFloat(avgRating);
+            overallShields.innerHTML = this.getShieldsDisplay(rating);
         }
 
         this.updateRatingBreakdown();
+        this.updateExternalLinks();
+    }
+
+    // NEW: Update external profile links
+    updateExternalLinks() {
+        if (!this.currentProfile) return;
+
+        const primalLink = document.getElementById('primal-link');
+        const damusLink = document.getElementById('damus-link');
+
+        if (primalLink) {
+            primalLink.href = `https://primal.net/p/${this.currentProfile.npub}`;
+        }
+
+        if (damusLink) {
+            damusLink.href = `https://damus.io/npub/${this.currentProfile.npub}`;
+        }
     }
 
     updateRatingBreakdown() {
@@ -676,7 +750,7 @@ class ThunderproofApp {
         this.displayReviews();
     }
 
-    // UPDATED: Connect methods with multiple options
+    // UPDATED: Connect methods with disabled options
     showConnectModal() {
         const modal = document.getElementById('connect-modal');
         this.showConnectMethods();
@@ -699,27 +773,29 @@ class ThunderproofApp {
                     </div>
                 </button>
                 
-                <button class="connect-option" id="connect-orangepill">
+                <button class="connect-option" id="connect-orangepill" disabled>
                     <div class="option-icon">🟠</div>
                     <div class="option-info">
                         <h4>Orange Pill App</h4>
                         <p>Connect using Orange Pill App mobile wallet</p>
                     </div>
+                    <div class="coming-soon-badge">Coming Soon</div>
                 </button>
                 
-                <button class="connect-option" id="connect-primal">
+                <button class="connect-option" id="connect-primal" disabled>
                     <div class="option-icon">🟣</div>
                     <div class="option-info">
                         <h4>Primal</h4>
                         <p>Connect using Primal web or mobile app</p>
                     </div>
+                    <div class="coming-soon-badge">Coming Soon</div>
                 </button>
                 
                 <button class="connect-option" id="connect-key">
                     <div class="option-icon">🔑</div>
                     <div class="option-info">
                         <h4>Private Key</h4>
-                        <p>Enter your nsec private key manually (FIXED SIGNING!)</p>
+                        <p>Enter your nsec private key manually (FULLY WORKING!)</p>
                     </div>
                 </button>
             </div>
@@ -727,16 +803,23 @@ class ThunderproofApp {
             <div class="security-notice">
                 <p>
                     <strong>🔒 Security:</strong> 
-                    All methods are supported. Your private keys never leave your device.
+                    Your private keys never leave your device. Orange Pill App & Primal integration coming soon!
                 </p>
             </div>
         `;
         
-        // Add event listeners
+        // Add event listeners (only for enabled options)
         document.getElementById('connect-extension')?.addEventListener('click', () => this.connectExtension());
-        document.getElementById('connect-orangepill')?.addEventListener('click', () => this.connectOrangePillApp());
-        document.getElementById('connect-primal')?.addEventListener('click', () => this.connectPrimal());
         document.getElementById('connect-key')?.addEventListener('click', () => this.showNsecInput());
+        
+        // Disabled options show toast
+        document.getElementById('connect-orangepill')?.addEventListener('click', () => {
+            this.showToast('Orange Pill App integration coming soon! Use extension or private key for now.', 'info');
+        });
+        
+        document.getElementById('connect-primal')?.addEventListener('click', () => {
+            this.showToast('Primal integration coming soon! Use extension or private key for now.', 'info');
+        });
     }
 
     async connectExtension() {
@@ -774,74 +857,6 @@ class ThunderproofApp {
         }
     }
 
-    async connectOrangePillApp() {
-        try {
-            if (!window.orangePillApp) {
-                throw new Error('Orange Pill App not found. Please make sure the Orange Pill App is installed and connected to this browser.');
-            }
-
-            this.showLoading('Connecting to Orange Pill App...');
-            
-            const pubkey = await window.orangePillApp.getPublicKey();
-            const npub = this.nostr && this.nostr.nip19 ? 
-                this.nostr.nip19.npubEncode(pubkey) : 
-                `npub${pubkey.substring(0, 20)}...`;
-            
-            this.user = {
-                pubkey,
-                npub,
-                name: this.formatNpub(npub),
-                picture: null,
-                method: 'orangepill'
-            };
-            
-            this.isConnected = true;
-            this.updateConnectionUI();
-            this.hideModal(document.getElementById('connect-modal'));
-            this.showToast('Connected with Orange Pill App!', 'success');
-            
-        } catch (error) {
-            console.error('Orange Pill App connection error:', error);
-            this.showToast(error.message, 'error');
-        } finally {
-            this.hideLoading();
-        }
-    }
-
-    async connectPrimal() {
-        try {
-            if (!window.primal) {
-                throw new Error('Primal not found. Please make sure Primal is installed and connected to this browser.');
-            }
-
-            this.showLoading('Connecting to Primal...');
-            
-            const pubkey = await window.primal.getPublicKey();
-            const npub = this.nostr && this.nostr.nip19 ? 
-                this.nostr.nip19.npubEncode(pubkey) : 
-                `npub${pubkey.substring(0, 20)}...`;
-            
-            this.user = {
-                pubkey,
-                npub,
-                name: this.formatNpub(npub),
-                picture: null,
-                method: 'primal'
-            };
-            
-            this.isConnected = true;
-            this.updateConnectionUI();
-            this.hideModal(document.getElementById('connect-modal'));
-            this.showToast('Connected with Primal!', 'success');
-            
-        } catch (error) {
-            console.error('Primal connection error:', error);
-            this.showToast(error.message, 'error');
-        } finally {
-            this.hideLoading();
-        }
-    }
-
     showNsecInput() {
         const modalBody = document.getElementById('connect-modal-body');
         const backArrow = document.getElementById('back-to-methods');
@@ -852,7 +867,7 @@ class ThunderproofApp {
             <div class="nsec-input-form">
                 <h4>Enter Private Key</h4>
                 <p class="form-description">
-                    Your private key (nsec) will be stored locally and never sent to any server.
+                    Your private key (nsec) will be stored locally and never sent to any server. This method is fully working with proper signature validation!
                 </p>
                 
                 <div class="input-group">
@@ -866,7 +881,7 @@ class ThunderproofApp {
                         spellcheck="false"
                     >
                     <div class="input-help">
-                        ✅ Private key signing is now FULLY WORKING!
+                        ✅ Private key signing now works perfectly with shield ratings!
                     </div>
                 </div>
                 
@@ -1016,7 +1031,7 @@ class ThunderproofApp {
         }
     }
 
-    // Review functionality
+    // Review functionality with shields
     showReviewModal() {
         if (!this.isConnected) {
             this.showToast('Please connect your Nostr account first', 'error');
@@ -1031,7 +1046,7 @@ class ThunderproofApp {
     selectRating(rating) {
         this.selectedRating = rating;
         
-        document.querySelectorAll('.star-btn').forEach(btn => {
+        document.querySelectorAll('.shield-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
         
@@ -1040,11 +1055,11 @@ class ThunderproofApp {
             selectedBtn.classList.add('selected');
         }
         
-        const selectedStars = document.getElementById('selected-stars');
+        const selectedShields = document.getElementById('selected-shields');
         const ratingText = document.getElementById('rating-text');
         
-        if (selectedStars) {
-            selectedStars.textContent = this.getStarsText(rating);
+        if (selectedShields) {
+            selectedShields.innerHTML = this.getShieldsDisplay(rating);
         }
         
         if (ratingText) {
@@ -1069,17 +1084,19 @@ class ThunderproofApp {
     resetReviewForm() {
         this.selectedRating = 0;
         
-        document.querySelectorAll('.star-btn').forEach(btn => {
+        document.querySelectorAll('.shield-btn').forEach(btn => {
             btn.classList.remove('selected');
         });
         
-        const selectedStars = document.getElementById('selected-stars');
+        const selectedShields = document.getElementById('selected-shields');
         const ratingText = document.getElementById('rating-text');
         const commentTextarea = document.getElementById('review-comment');
         const charCounter = document.getElementById('char-counter');
         const submitBtn = document.getElementById('submit-review');
         
-        if (selectedStars) selectedStars.textContent = '☆☆☆☆☆';
+        if (selectedShields) {
+            selectedShields.innerHTML = this.getShieldsDisplay(0);
+        }
         if (ratingText) ratingText.textContent = 'Select your rating';
         if (commentTextarea) commentTextarea.value = '';
         if (charCounter) charCounter.textContent = '0/500 characters';
@@ -1176,22 +1193,6 @@ class ThunderproofApp {
             console.log('🔐 Signing with extension...');
             const signedEvent = await window.nostr.signEvent(baseEvent);
             console.log('✅ Event signed with extension');
-            return signedEvent;
-        }
-        
-        // Orange Pill App signing
-        if (this.user.method === 'orangepill' && window.orangePillApp) {
-            console.log('🔐 Signing with Orange Pill App...');
-            const signedEvent = await window.orangePillApp.signEvent(baseEvent);
-            console.log('✅ Event signed with Orange Pill App');
-            return signedEvent;
-        }
-        
-        // Primal signing
-        if (this.user.method === 'primal' && window.primal) {
-            console.log('🔐 Signing with Primal...');
-            const signedEvent = await window.primal.signEvent(baseEvent);
-            console.log('✅ Event signed with Primal');
             return signedEvent;
         }
         
@@ -1401,7 +1402,7 @@ class ThunderproofApp {
         return publishResults;
     }
 
-    // Share functionality
+    // IMPROVED: Share functionality
     showShareModal() {
         if (!this.currentProfile) return;
         
@@ -1458,11 +1459,11 @@ class ThunderproofApp {
             
             const button = element.parentNode?.querySelector('.btn-copy');
             if (button) {
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
+                const originalText = button.innerHTML;
+                button.innerHTML = '<span class="copy-icon">✅</span> Copied!';
                 
                 setTimeout(() => {
-                    button.textContent = originalText;
+                    button.innerHTML = originalText;
                 }, 2000);
             }
             
@@ -1538,6 +1539,34 @@ class ThunderproofApp {
         window.history.replaceState({}, document.title, url);
     }
 
+    // NEW: Shield-based rating display
+    getShieldsDisplay(rating) {
+        const shields = [];
+        const fullShields = Math.floor(rating);
+        const hasPartialShield = (rating % 1) > 0;
+        const partialPercentage = Math.round((rating % 1) * 100);
+        
+        // Add full shields
+        for (let i = 0; i < fullShields; i++) {
+            shields.push(`<img src="100%.svg" alt="full shield" width="20" height="20">`);
+        }
+        
+        // Add partial shield if needed
+        if (hasPartialShield && fullShields < 5) {
+            const closestPercentage = Math.round(partialPercentage / 10) * 10;
+            const assetName = this.shieldAssets[closestPercentage] || '0%.svg';
+            shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
+        }
+        
+        // Add empty shields to make 5 total
+        const remainingShields = 5 - shields.length;
+        for (let i = 0; i < remainingShields; i++) {
+            shields.push(`<img src="0%.svg" alt="empty shield" width="20" height="20">`);
+        }
+        
+        return shields.join('');
+    }
+
     // UI Helpers
     showModal(modal) {
         if (modal) {
@@ -1594,16 +1623,6 @@ class ThunderproofApp {
         return key.startsWith('npub1') && key.length === 63;
     }
 
-    getStarsText(rating) {
-        const fullStars = Math.floor(rating);
-        const hasHalfStar = rating % 1 >= 0.5;
-        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-        
-        return '★'.repeat(fullStars) + 
-               (hasHalfStar ? '⭐' : '') + 
-               '☆'.repeat(emptyStars);
-    }
-
     formatAuthor(npub) {
         if (!npub) return 'Anonymous';
         return npub.length > 16 ? npub.substring(0, 16) + '...' : npub;
@@ -1645,7 +1664,7 @@ class ThunderproofApp {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔥 Starting Thunderproof v3 (COMPLETE + NEW UI)...');
+    console.log('🔥 Starting Thunderproof v3 (SHIELDS & ENHANCED)...');
     try {
         window.thunderproof = new ThunderproofApp();
     } catch (error) {
