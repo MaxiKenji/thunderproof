@@ -1538,40 +1538,41 @@ class ThunderproofApp {
     }
 
     // Navigation
-    showProfileSection() {
-        // Hide hero sections
-        document.querySelector('.hero')?.style.setProperty('display', 'none');
-        document.querySelector('.how-it-works')?.style.setProperty('display', 'none');
-        document.querySelector('.why-thunderproof')?.style.setProperty('display', 'none');
-        document.querySelector('.rating-section')?.style.setProperty('display', 'none');
-        document.querySelector('.footer')?.style.setProperty('display', 'none');
-     
-        
-        // Show profile section
-        const profileSection = document.getElementById('profile-section');
-        if (profileSection) {
-            profileSection.classList.remove('hidden');
-        }
-        
-        this.updateProfileDisplay();
+ showProfileSection() {
+    // Hide hero sections
+    document.querySelector('.hero')?.style.setProperty('display', 'none');
+    document.querySelector('.how-it-works')?.style.setProperty('display', 'none');
+    document.querySelector('.why-thunderproof')?.style.setProperty('display', 'none');
+    document.querySelector('.rating-section')?.style.setProperty('display', 'none');
+    document.querySelector('.footer')?.style.setProperty('display', 'none'); // ✅ Hide footer only on profile pages
+    
+    // Show profile section
+    const profileSection = document.getElementById('profile-section');
+    if (profileSection) {
+        profileSection.classList.remove('hidden');
     }
+    
+    this.updateProfileDisplay();
+}
 
-    showHeroSection() {
-        // Show hero sections
-        document.querySelector('.hero')?.style.removeProperty('display');
-        document.querySelector('.how-it-works')?.style.removeProperty('display');
-        document.querySelector('.why-thunderproof')?.style.removeProperty('display');
-        document.querySelector('.rating-section')?.style.removeProperty('display');
-        // ✅ REMOVED: Footer line that was causing positioning issues
-        
-        // Hide profile section
-        const profileSection = document.getElementById('profile-section');
-        if (profileSection) {
-            profileSection.classList.add('hidden');
-        }
-        
-        window.history.replaceState({}, document.title, window.location.pathname);
+
+showHeroSection() {
+    // Show hero sections
+    document.querySelector('.hero')?.style.removeProperty('display');
+    document.querySelector('.how-it-works')?.style.removeProperty('display');
+    document.querySelector('.why-thunderproof')?.style.removeProperty('display');
+    document.querySelector('.rating-section')?.style.removeProperty('display');
+    document.querySelector('.footer')?.style.removeProperty('display'); // ✅ Show footer on homepage
+    
+    // Hide profile section
+    const profileSection = document.getElementById('profile-section');
+    if (profileSection) {
+        profileSection.classList.add('hidden');
     }
+    
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
 
     updateProfileDisplay() {
         if (!this.currentProfile) return;
@@ -1617,7 +1618,7 @@ class ThunderproofApp {
         // Add partial shield if needed
         if (hasPartialShield && fullShields < 5) {
             const closestPercentage = Math.round(partialPercentage / 10) * 10;
-            const assetName = `${closestPercentage}%.svg`;
+            const assetName = `${closestPercentage}.png`;
             shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
         }
         
