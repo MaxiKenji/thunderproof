@@ -3751,3 +3751,20 @@ select.form-control {
         font-size: var(--font-size-sm);
     }
 }
+
+@media (max-width: 768px) {
+  /* Make hero illustration 250px wide */
+  .hero-illustration {
+    width: 250px;
+    height: auto;
+    margin: 0 auto;
+  }
+
+  /* Increase gap in hero layout */
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+}
