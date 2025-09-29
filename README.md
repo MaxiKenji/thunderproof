@@ -7,7 +7,7 @@
 - **Real Nostr Integration**: Reviews stored permanently on decentralized Nostr relays
 - **Private Key Login**: Secure nsec authentication (no key generation)  
 - **Cryptographic Signatures**: Every review is cryptographically signed and verifiable
-- **SVG Asset Support**: Clean star rating system with SVG graphics
+- **SVG Asset Support**: Clean shield rating system with SVG graphics
 - **Embeddable Widgets**: Share reviews anywhere with iframe components
 - **No Fake Reviews**: Only real, authenticated reviews from Nostr
 
@@ -19,7 +19,7 @@ thunderproof-v3/
 ├── style.css           # Complete dark theme styling  
 ├── script.js           # Full Nostr review system
 ├── embed.html          # Embeddable widget for other sites
-├── assets/             # SVG star rating assets (0.svg to 100.svg)
+├── assets/             # SVG shield rating assets (0.svg to 100.svg)
 ├── README.md           # This file
 └── .gitignore          # Git ignore file
 ```
@@ -37,7 +37,7 @@ thunderproof-v3/
 - Removed key generation for security best practices
 
 ### 3. **Add Reviews**
-- 5-star rating system using your SVG assets
+- 5-shield rating system using your SVG assets
 - Write detailed comments up to 500 characters
 - Reviews published as NIP-32 labeling events (kind 1985)
 - Cryptographically signed and stored permanently
@@ -56,7 +56,7 @@ thunderproof-v3/
   - `L`: Label namespace
   - `l`: Label type (`review`)  
   - `p`: Target pubkey being reviewed
-  - `rating`: 1-5 star rating
+  - `rating`: 1-5 shield rating
   - `client`: Thunderproof
 
 ### **Relays Used**
@@ -71,7 +71,7 @@ thunderproof-v3/
 ### **Asset Requirements**
 You need to provide these SVG files in the `assets/` folder:
 - `logo.svg` - Thunderproof logo
-- `0.svg` to `100.svg` - Star ratings (0%, 10%, 20%, ..., 100%)
+- `0.svg` to `100.svg` - shield ratings (0%, 10%, 20%, ..., 100%)
 
 ## 🌟 Key Improvements v3
 
@@ -80,7 +80,7 @@ You need to provide these SVG files in the `assets/` folder:
 3. **✅ Working nsec Login**: Manual private key entry with local storage
 4. **✅ Removed Key Generation**: Security best practice
 5. **✅ Enhanced Error Handling**: Better loading states and error messages
-6. **✅ SVG Support**: Uses your star rating assets properly
+6. **✅ SVG Support**: Uses your shield rating assets properly
 7. **✅ Mobile Responsive**: Works great on all device sizes
 8. **✅ Professional UI**: Dark theme with Bitcoin orange accents
 
@@ -94,7 +94,7 @@ cd thunderproof-v3
 
 ### **2. Add Your Assets**
 Create `assets/` folder and add your SVG files:
-- Convert your JPG star ratings to SVG format
+- Convert your JPG shield ratings to SVG format
 - Name them: `0.svg`, `10.svg`, `20.svg`, ..., `100.svg`
 - Add your `logo.svg` file
 
@@ -122,16 +122,8 @@ https://yoursite.com/?profile=npub104fpzfgtc4h272p66uye2nhjes622x7dduk97g8re5h8g
 ```
 
 ### **Embed Widget**
-```html
-<iframe
-  src="https://yoursite.com/embed.html?profile=npub...&max=5"
-  width="400"
-  height="500"
-  frameborder="0"
-  style="border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
-  loading="lazy">
-</iframe>
-```
+
+Coming soon!
 
 ## 💡 Review Data Format
 
@@ -162,28 +154,7 @@ Reviews are stored as Nostr events with this structure:
 - **Extension Support**: Secure NIP-07 wallet integration
 - **Decentralized Storage**: No central point of failure
 
-## 📱 Responsive Design
 
-- **Desktop**: Full two-column layout with floating review cards
-- **Tablet**: Stacked layout with optimized spacing  
-- **Mobile**: Single column with touch-friendly interfaces
-- **Embed**: Scales down to any widget size
-
-## 🎨 Design System
-
-- **Colors**: Bitcoin orange (#f7931a) with dark theme
-- **Typography**: Source Sans 3 font family
-- **Spacing**: 8px base unit scaling system
-- **Components**: Consistent buttons, modals, and form elements
-- **Animations**: Smooth transitions and micro-interactions
-
-## ⚡ Performance
-
-- **Lazy Loading**: Images loaded only when needed
-- **CDN Fallbacks**: Multiple sources for Nostr tools
-- **Optimized Assets**: SVG graphics for scalability
-- **Minimal Bundle**: No heavy frameworks or dependencies
-- **Fast Relays**: Curated list of reliable Nostr relays
 
 ---
 
