@@ -22,17 +22,17 @@ class ThunderproofApp {
         
         // ✅ FIXED: Shield assets mapping - DIRECT PATHS (no assets/ folder)
         this.shieldAssets = {
-            0: '0%.svg',
-            10: '10%.svg', 
-            20: '20%.svg',
-            30: '30%.svg',
-            40: '40%.svg',
-            50: '50%.svg',
-            60: '60%.svg',
-            70: '70%.svg',
-            80: '80%.svg',
-            90: '90%.svg',
-            100: '100%.svg'
+          0: 'assets/0.png',
+            10: 'assets/10.png', 
+            20: 'assets/20.png',
+            30: 'assets/30.png',
+            40: 'assets/40.png',
+            50: 'assets/50.png',
+            60: 'assets/60.png',
+            70: 'assets/70.png',
+            80: 'assets/80.png',
+            90: 'assets/90.png',
+            100: 'assets/100.png'
         };
         
         // Add after other configuration
@@ -1772,23 +1772,22 @@ class ThunderproofApp {
         const fullShields = Math.floor(rating);
         const hasPartialShield = (rating % 1) > 0;
         
-        // Add full shields (100%)
+        // Add full shields
         for (let i = 0; i < fullShields; i++) {
-            shields.push(`<img src="100%.svg" alt="full shield" width="20" height="20">`);
+            shields.push(`<img src="assets/100.png" alt="full shield" width="20" height="20">`);
         }
         
         // Add partial shield if needed
         if (hasPartialShield && fullShields < 5) {
-            const partialValue = rating % 1; // e.g., 0.6 for 4.6 rating
-            const percentage = Math.round(partialValue * 10) * 10; // Round to nearest 10%
-            const finalPercentage = Math.max(10, percentage); // Minimum 10% for any partial
-            shields.push(`<img src="${finalPercentage}%.svg" alt="partial shield ${finalPercentage}%" width="20" height="20">`);
+            const closestPercentage = Math.round(partialPercentage / 10) * 10;
+            const assetName = `${closestPercentage}.png`;
+            shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
         }
         
         // Add empty shields to make 5 total
         const remainingShields = 5 - shields.length;
         for (let i = 0; i < remainingShields; i++) {
-            shields.push(`<img src="0%.svg" alt="empty shield" width="20" height="20">`);
+            shields.push(`<img src="assets/0.png" alt="empty shield" width="20" height="20">`);
         }
         
         return shields.join('');
