@@ -2668,7 +2668,7 @@ background: #EDF8F8;
 
 .donate-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(33, 185, 219, 0.4);
+    box-shadow: 0 6px 20px #29A699;
 }
 
 .donate-icon {
