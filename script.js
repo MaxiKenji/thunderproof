@@ -1766,32 +1766,35 @@ class ThunderproofApp {
         window.history.replaceState({}, document.title, url);
     }
 
-    // ✅ FIXED: Shield-based rating display - CORRECT PATHS
-    getShieldsDisplay(rating) {
-        const shields = [];
-        const fullShields = Math.floor(rating);
-        const hasPartialShield = (rating % 1) > 0;
-        
-        // Add full shields
-        for (let i = 0; i < fullShields; i++) {
-            shields.push(`<img src="assets/100.png" alt="full shield" width="20" height="20">`);
-        }
-        
-        // Add partial shield if needed
-        if (hasPartialShield && fullShields < 5) {
-            const closestPercentage = Math.round(partialPercentage / 10) * 10;
-            const assetName = `${closestPercentage}.png`;
-            shields.push(`<img src="${assetName}.png" alt="partial shield" width="20" height="20">`);
-        }
-        
-        // Add empty shields to make 5 total
-        const remainingShields = 5 - shields.length;
-        for (let i = 0; i < remainingShields; i++) {
-            shields.push(`<img src="assets/0.png" alt="empty shield" width="20" height="20">`);
-        }
-        
-        return shields.join('');
+
+
+// ✅ FIXED: Shield-based rating display - CORRECT PATHS
+getShieldsDisplay(rating) {
+    const shields = [];
+    const fullShields = Math.floor(rating);
+    const hasPartialShield = (rating % 1) > 0;
+    
+    // Add full shields (100%)
+    for (let i = 0; i < fullShields; i++) {
+        shields.push(`<img src="assets/100.png" alt="full shield" width="20" height="20">`);
     }
+    
+    // Add partial shield if needed
+    if (hasPartialShield && fullShields < 5) {
+        const partialValue = rating % 1; // e.g., 0.6 for 4.6 rating
+        const partialPercentage = Math.round(partialValue * 10) * 10; // Round to nearest 10%
+        const finalPercentage = Math.max(10, partialPercentage); // Minimum 10% for any partial
+        shields.push(`<img src="assets/${finalPercentage}.png" alt="partial shield ${finalPercentage}%" width="20" height="20">`);
+    }
+    
+    // Add empty shields to make 5 total
+    const remainingShields = 5 - shields.length;
+    for (let i = 0; i < remainingShields; i++) {
+        shields.push(`<img src="assets/0.png" alt="empty shield" width="20" height="20">`);
+    }
+    
+    return shields.join('');
+}
 
     // UI Helpers
     showModal(modal) {
