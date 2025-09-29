@@ -1,4 +1,4 @@
-// Thunderproof - COMPLETE VERSION with Shields & Improved Features - ALL BUGS FIXED
+// Thunderproof - COMPLETE VERSION with Shields & Improved Features + DUPLICATE PREVENTION SYSTEM
 class ThunderproofApp {
     constructor() {
         // Application state
@@ -22,17 +22,17 @@ class ThunderproofApp {
         
         // ✅ FIXED: Shield assets mapping - DIRECT PATHS (no assets/ folder)
         this.shieldAssets = {
-            0: 'assets/0.png',
-            10: 'assets/10.png', 
-            20: 'assets/20.png',
-            30: 'assets/30.png',
-            40: 'assets/40.png',
-            50: 'assets/50.png',
-            60: 'assets/60.png',
-            70: 'assets/70.png',
-            80: 'assets/80.png',
-            90: 'assets/90.png',
-            100: 'assets/100.png'
+            0: '0%.svg',
+            10: '10%.svg', 
+            20: '20%.svg',
+            30: '30%.svg',
+            40: '40%.svg',
+            50: '50%.svg',
+            60: '60%.svg',
+            70: '70%.svg',
+            80: '80%.svg',
+            90: '90%.svg',
+            100: '100%.svg'
         };
         
         // Add after other configuration
@@ -42,7 +42,7 @@ class ThunderproofApp {
     }
 
     async init() {
-        console.log('🚀 Initializing Thunderproof v3 (SHIELDS & ENHANCED)...');
+        console.log('🚀 Initializing Thunderproof v3 (SHIELDS & ENHANCED + DUPLICATE PREVENTION)...');
         
         try {
             await this.loadNostrTools();
@@ -487,6 +487,7 @@ class ThunderproofApp {
         }
     }
 
+    // ✅ UPDATED: Fetch reviews with duplicate filtering
     async fetchReviewsFromRelays(targetPubkey) {
         try {
             console.log(`🔍 Searching for reviews of ${targetPubkey.substring(0, 8)}...`);
@@ -514,13 +515,43 @@ class ThunderproofApp {
                 }
             }
 
-            reviews.sort((a, b) => b.created_at - a.created_at);
+            // ✅ FILTER DUPLICATES - SHOW ONLY LATEST REVIEW PER AUTHOR
+            const filteredReviews = this.filterDuplicateReviews(reviews);
             
-            return reviews;
+            console.log(`🛡️ Filtered ${reviews.length} total events to ${filteredReviews.length} unique reviews`);
+            
+            filteredReviews.sort((a, b) => b.created_at - a.created_at);
+            
+            return filteredReviews;
         } catch (error) {
             console.error('Error fetching reviews:', error);
             return [];
         }
+    }
+
+    // ✅ NEW: Filter duplicate reviews method
+    filterDuplicateReviews(reviews) {
+        const authorLatestMap = new Map();
+        
+        // Group by author and find latest review for each
+        reviews.forEach(review => {
+            const authorKey = review.author;
+            const existingReview = authorLatestMap.get(authorKey);
+            
+            if (!existingReview || review.created_at > existingReview.created_at) {
+                authorLatestMap.set(authorKey, review);
+            }
+        });
+        
+        const filteredReviews = Array.from(authorLatestMap.values());
+        
+        // Log duplicate info
+        const duplicatesRemoved = reviews.length - filteredReviews.length;
+        if (duplicatesRemoved > 0) {
+            console.log(`🧹 Removed ${duplicatesRemoved} duplicate/outdated reviews`);
+        }
+        
+        return filteredReviews;
     }
 
     // Manual WebSocket relay querying
@@ -857,7 +888,7 @@ class ThunderproofApp {
                     <div class="option-icon">🔑</div>
                     <div class="option-info">
                         <h4>Private Key</h4>
-                        <p>Enter your nsec private key manually (FULLY WORKING!)</p>
+                        <p>Enter your nsec private key manually (less safe)</p>
                     </div>
                 </button>
             </div>
@@ -1072,7 +1103,7 @@ class ThunderproofApp {
                 if (this.user.picture) {
                     userAvatar.src = this.user.picture;
                 } else {
-                    userAvatar.src = 'assets/placeholder_profilepicture.png';  // ✅ FIXED
+                    userAvatar.src = 'assets/placeholder_profilepicture.png';
                 }
             }
             
@@ -1165,6 +1196,113 @@ class ThunderproofApp {
         if (submitBtn) submitBtn.disabled = true;
     }
 
+    // ✅ NEW: Check for existing reviews method
+    async checkForExistingReview(targetPubkey, authorPubkey) {
+        try {
+            console.log(`🔍 Checking for existing reviews from ${authorPubkey.substring(0, 8)}... to ${targetPubkey.substring(0, 8)}...`);
+            
+            // Query for existing reviews from this author to this target
+            const existingReviews = await this.queryRelaysManually([{
+                kinds: [this.REVIEW_KIND],
+                '#L': [this.REVIEW_NAMESPACE],
+                '#l': ['review'],
+                '#p': [targetPubkey],
+                authors: [authorPubkey],
+                limit: 10
+            }], 10000);
+
+            if (existingReviews.length > 0) {
+                console.log(`📝 Found ${existingReviews.length} existing review(s) from this author`);
+                
+                // Return the most recent review
+                const latestReview = existingReviews.reduce((latest, current) => 
+                    current.created_at > latest.created_at ? current : latest
+                );
+                
+                return {
+                    hasExisting: true,
+                    latestReview: latestReview,
+                    totalFound: existingReviews.length
+                };
+            }
+            
+            console.log(`✅ No existing reviews found from this author`);
+            return { hasExisting: false, latestReview: null, totalFound: 0 };
+            
+        } catch (error) {
+            console.error('❌ Error checking for existing reviews:', error);
+            return { hasExisting: false, latestReview: null, totalFound: 0 };
+        }
+    }
+
+    // ✅ NEW: Show overwrite confirmation dialog
+    async showOverwriteConfirmation(existingCheck) {
+        return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'modal overwrite-modal';
+            modal.innerHTML = `
+                <div class="modal-overlay">
+                    <div class="modal-content" style="max-width: 500px;">
+                        <div class="modal-header">
+                            <h3>⚠️ Update Previous Review?</h3>
+                            <button class="modal-close" id="overwrite-close">×</button>
+                        </div>
+                        <div class="modal-body">
+                            <p>You've already reviewed this profile before.</p>
+                            <p><strong>Found:</strong> ${existingCheck.totalFound} previous review(s)</p>
+                            <p><strong>Latest review date:</strong> ${this.formatDate(existingCheck.latestReview.created_at)}</p>
+                            
+                            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                                <h4>What happens next?</h4>
+                                <ul>
+                                    <li>✅ Your new review will be published</li>
+                                    <li>📝 Both reviews will exist on Nostr (protocol limitation)</li>
+                                    <li>👁️ Thunderproof will show only your latest review</li>
+                                    <li>🛡️ This prevents spam and allows updates</li>
+                                </ul>
+                            </div>
+                            
+                            <p>Do you want to update your review?</p>
+                        </div>
+                        <div class="modal-actions">
+                            <button id="overwrite-cancel" class="btn-secondary">Cancel</button>
+                            <button id="overwrite-confirm" class="btn-primary">Update Review</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Event listeners
+            const handleClose = () => {
+                document.body.removeChild(modal);
+                document.body.style.overflow = 'auto';
+                resolve(false);
+            };
+            
+            const handleConfirm = () => {
+                document.body.removeChild(modal);
+                document.body.style.overflow = 'auto';
+                resolve(true);
+            };
+            
+            modal.querySelector('#overwrite-close').addEventListener('click', handleClose);
+            modal.querySelector('#overwrite-cancel').addEventListener('click', handleClose);
+            modal.querySelector('#overwrite-confirm').addEventListener('click', handleConfirm);
+            
+            // Close on overlay click
+            modal.querySelector('.modal-overlay').addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) {
+                    handleClose();
+                }
+            });
+        });
+    }
+
+    // ✅ UPDATED: Submit review with duplicate checking
     async submitReview() {
         if (!this.isConnected || !this.user) {
             this.showToast('Please connect your Nostr account first', 'error');
@@ -1192,9 +1330,30 @@ class ThunderproofApp {
         
         try {
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="btn-icon">⚡</span> Publishing to Nostr...';
+            submitBtn.innerHTML = '<span class="btn-icon">🔍</span> Checking for existing reviews...';
             
-            console.log('🚀 Starting review submission...');
+            console.log('🚀 Starting review submission with duplicate check...');
+            
+            // ✅ CHECK FOR EXISTING REVIEWS FIRST
+            const existingCheck = await this.checkForExistingReview(
+                this.currentProfile.pubkey, 
+                this.user.pubkey
+            );
+            
+            if (existingCheck.hasExisting) {
+                // Show confirmation dialog for overwrite
+                const shouldOverwrite = await this.showOverwriteConfirmation(existingCheck);
+                
+                if (!shouldOverwrite) {
+                    this.showToast('Review submission cancelled', 'info');
+                    return;
+                }
+                
+                this.showToast('Updating your previous review...', 'info');
+                submitBtn.innerHTML = '<span class="btn-icon">⚡</span> Updating review on Nostr...';
+            } else {
+                submitBtn.innerHTML = '<span class="btn-icon">⚡</span> Publishing new review to Nostr...';
+            }
             
             const reviewEvent = await this.createReviewEvent(
                 this.currentProfile.pubkey,
@@ -1209,8 +1368,14 @@ class ThunderproofApp {
             console.log('✅ Review published successfully!');
             
             this.hideModal(document.getElementById('review-modal'));
-            this.showToast('Review published to Nostr relays! 🎉', 'success');
             
+            if (existingCheck.hasExisting) {
+                this.showToast('Review updated successfully! 🎉', 'success');
+            } else {
+                this.showToast('Review published to Nostr relays! 🎉', 'success');
+            }
+            
+            // Reload reviews after a short delay
             setTimeout(() => {
                 this.loadReviews();
             }, 3000);
@@ -1538,41 +1703,39 @@ class ThunderproofApp {
     }
 
     // Navigation
- showProfileSection() {
-    // Hide hero sections
-    document.querySelector('.hero')?.style.setProperty('display', 'none');
-    document.querySelector('.how-it-works')?.style.setProperty('display', 'none');
-    document.querySelector('.why-thunderproof')?.style.setProperty('display', 'none');
-    document.querySelector('.rating-section')?.style.setProperty('display', 'none');
-    document.querySelector('.footer')?.style.setProperty('display', 'none'); // ✅ Hide footer only on profile pages
-    
-    // Show profile section
-    const profileSection = document.getElementById('profile-section');
-    if (profileSection) {
-        profileSection.classList.remove('hidden');
+    showProfileSection() {
+        // Hide hero sections
+        document.querySelector('.hero')?.style.setProperty('display', 'none');
+        document.querySelector('.how-it-works')?.style.setProperty('display', 'none');
+        document.querySelector('.why-thunderproof')?.style.setProperty('display', 'none');
+        document.querySelector('.rating-section')?.style.setProperty('display', 'none');
+        document.querySelector('.footer')?.style.setProperty('display', 'none'); // Hide footer only on profile pages
+        
+        // Show profile section
+        const profileSection = document.getElementById('profile-section');
+        if (profileSection) {
+            profileSection.classList.remove('hidden');
+        }
+        
+        this.updateProfileDisplay();
     }
-    
-    this.updateProfileDisplay();
-}
 
-
-showHeroSection() {
-    // Show hero sections
-    document.querySelector('.hero')?.style.removeProperty('display');
-    document.querySelector('.how-it-works')?.style.removeProperty('display');
-    document.querySelector('.why-thunderproof')?.style.removeProperty('display');
-    document.querySelector('.rating-section')?.style.removeProperty('display');
-    document.querySelector('.footer')?.style.removeProperty('display'); // ✅ Show footer on homepage
-    
-    // Hide profile section
-    const profileSection = document.getElementById('profile-section');
-    if (profileSection) {
-        profileSection.classList.add('hidden');
+    showHeroSection() {
+        // Show hero sections
+        document.querySelector('.hero')?.style.removeProperty('display');
+        document.querySelector('.how-it-works')?.style.removeProperty('display');
+        document.querySelector('.why-thunderproof')?.style.removeProperty('display');
+        document.querySelector('.rating-section')?.style.removeProperty('display');
+        document.querySelector('.footer')?.style.removeProperty('display'); // Show footer on homepage
+        
+        // Hide profile section
+        const profileSection = document.getElementById('profile-section');
+        if (profileSection) {
+            profileSection.classList.add('hidden');
+        }
+        
+        window.history.replaceState({}, document.title, window.location.pathname);
     }
-    
-    window.history.replaceState({}, document.title, window.location.pathname);
-}
-
 
     updateProfileDisplay() {
         if (!this.currentProfile) return;
@@ -1608,24 +1771,24 @@ showHeroSection() {
         const shields = [];
         const fullShields = Math.floor(rating);
         const hasPartialShield = (rating % 1) > 0;
-        const partialPercentage = Math.round((rating % 1) * 100);
         
-        // Add full shields
+        // Add full shields (100%)
         for (let i = 0; i < fullShields; i++) {
-            shields.push(`<img src="assets/100.png" alt="full shield" width="20" height="20">`);
+            shields.push(`<img src="100%.svg" alt="full shield" width="20" height="20">`);
         }
         
         // Add partial shield if needed
         if (hasPartialShield && fullShields < 5) {
-            const closestPercentage = Math.round(partialPercentage / 10) * 10;
-            const assetName = `${closestPercentage}.png`;
-            shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
+            const partialValue = rating % 1; // e.g., 0.6 for 4.6 rating
+            const percentage = Math.round(partialValue * 10) * 10; // Round to nearest 10%
+            const finalPercentage = Math.max(10, percentage); // Minimum 10% for any partial
+            shields.push(`<img src="${finalPercentage}%.svg" alt="partial shield ${finalPercentage}%" width="20" height="20">`);
         }
         
         // Add empty shields to make 5 total
         const remainingShields = 5 - shields.length;
         for (let i = 0; i < remainingShields; i++) {
-            shields.push(`<img src="assets/0.png" alt="empty shield" width="20" height="20">`);
+            shields.push(`<img src="0%.svg" alt="empty shield" width="20" height="20">`);
         }
         
         return shields.join('');
@@ -1722,13 +1885,13 @@ showHeroSection() {
     }
 
     generateDefaultAvatar() {
-        return 'assets/placeholder_profilepicture.png';  // ✅ FIXED
+        return 'assets/placeholder_profilepicture.png';
     }
 }
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('🔥 Starting Thunderproof v3 (SHIELDS & ENHANCED) - ALL BUGS FIXED...');
+    console.log('🔥 Starting Thunderproof v3 (SHIELDS & ENHANCED + DUPLICATE PREVENTION) - ALL BUGS FIXED...');
     try {
         window.thunderproof = new ThunderproofApp();
     } catch (error) {

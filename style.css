@@ -881,7 +881,7 @@ body {
 .hero-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 80px;
+    gap: 48px;
     align-items: center;
     min-height: 600px;
 }
@@ -1006,7 +1006,7 @@ background: #EDF8F8;
 /* Hero Illustration */
 .hero-illustration {
     position: relative;
-    height: 600px;
+    height: 800px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1043,7 +1043,7 @@ background: #EDF8F8;
 }
 
 .hero-image {
-    max-width: 600px;
+    max-width: 800px;
     height: auto;
     border-radius: var(--radius-lg);
 }
