@@ -22,17 +22,17 @@ class ThunderproofApp {
         
         // FIXED: Shield assets mapping - DIRECT PATHS (no assets/ folder)
         this.shieldAssets = {
-            0: '0%.svg',
-            10: '10%.svg', 
-            20: '20%.svg',
-            30: '30%.svg',
-            40: '40%.svg',
-            50: '50%.svg',
-            60: '60%.svg',
-            70: '70%.svg',
-            80: '80%.svg',
-            90: '90%.svg',
-            100: '100%.svg'
+            0: 'assets/0.png',
+            10: 'assets/10.png', 
+            20: 'assets/20.png',
+            30: 'assets/30.png',
+            40: 'assets/40.png',
+            50: 'assets/50.png',
+            60: 'assets/60.png',
+            70: 'assets/70.png',
+            80: 'assets/80.png',
+            90: 'assets/90.png',
+            100: 'assets/100.png'
         };
         
         // Add after other configuration
@@ -1544,7 +1544,6 @@ class ThunderproofApp {
         document.querySelector('.how-it-works')?.style.setProperty('display', 'none');
         document.querySelector('.why-thunderproof')?.style.setProperty('display', 'none');
         document.querySelector('.rating-section')?.style.setProperty('display', 'none');
-        document.querySelector('.footer')?.style.setProperty('display', 'none');
         
         // Show profile section
         const profileSection = document.getElementById('profile-section');
