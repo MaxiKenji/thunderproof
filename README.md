@@ -1,4 +1,5 @@
-# Thunderproof v3 - Decentralized Review System
+# Thunderproof - Decentralized Review System
+Proof of trust
 
 **Authentic Bitcoin ecosystem reviews powered by Nostr protocol**
 
