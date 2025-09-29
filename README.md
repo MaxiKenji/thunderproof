@@ -209,7 +209,8 @@ Thunderproof gives the Bitcoin community the tools to build **reputation and tru
 - 🔗 **GitHub:** [github.com/MaxiKenji/thunderproof](https://github.com/MaxiKenji/thunderproof)
 - ⚡ **Built on:** [Nostr Protocol](https://nostr.com)
 - 🛡️ **Powered by:** Community trust and cryptographic verification
-
+- 🗒️ **Stacker news first draft:**[https://stacker.news/items/1201056/r/Kenji
+](url)
 ---
 
 ## 📈 Repository Stats
