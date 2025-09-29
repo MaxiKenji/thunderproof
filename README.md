@@ -1,164 +1,238 @@
-# Thunderproof - Decentralized Review System
-Proof of trust
+# ⚡ Thunderproof - Decentralized Trust for the Bitcoin Economy
 
-**Authentic Bitcoin ecosystem reviews powered by Nostr protocol**
+*"Anonymous doesn't mean untrustworthy when the community vouches for them."*
 
-## 🚀 Features
+**The first cryptographically-verified review system built on Nostr protocol for the Bitcoin ecosystem**
 
-- **Real Nostr Integration**: Reviews stored permanently on decentralized Nostr relays
-- **Private Key Login**: Secure nsec authentication (no key generation)  
-- **Cryptographic Signatures**: Every review is cryptographically signed and verifiable
-- **SVG Asset Support**: Clean shield rating system with SVG graphics
-- **Embeddable Widgets**: Share reviews anywhere with iframe components
-- **No Fake Reviews**: Only real, authenticated reviews from Nostr
-
-## 📁 Repository Structure
-
-```
-thunderproof-v3/
-├── index.html          # Main website (Hero + Profile sections)
-├── style.css           # Complete dark theme styling  
-├── script.js           # Full Nostr review system
-├── embed.html          # Embeddable widget for other sites
-├── assets/             # SVG shield rating assets (0.svg to 100.svg)
-├── README.md           # This file
-└── .gitignore          # Git ignore file
-```
-
-## 🎯 How It Works
-
-### 1. **Search Profiles**
-- Enter any Nostr public key (npub) to find profiles
-- Fetches real profile data from Nostr relays
-- Shows authentic reviews only (no fake data)
-
-### 2. **Connect with Nostr**
-- **Extension**: Connect with Alby, nos2x, or other NIP-07 extensions
-- **Private Key**: Enter your nsec manually (stored locally for convenience)
-- Removed key generation for security best practices
-
-### 3. **Add Reviews**
-- 5-shield rating system using your SVG assets
-- Write detailed comments up to 500 characters
-- Reviews published as NIP-32 labeling events (kind 1985)
-- Cryptographically signed and stored permanently
-
-### 4. **Share Reviews**
-- Direct profile links with URL parameters
-- Embeddable iframe widgets for websites
-- Customizable widget dimensions and review limits
-
-## 🔧 Technical Implementation
-
-### **Nostr Protocol**
-- **Event Kind**: 1985 (NIP-32 labeling)
-- **Namespace**: `thunderproof`
-- **Tags**:
-  - `L`: Label namespace
-  - `l`: Label type (`review`)  
-  - `p`: Target pubkey being reviewed
-  - `rating`: 1-5 shield rating
-  - `client`: Thunderproof
-
-### **Relays Used**
-- `wss://relay.damus.io`
-- `wss://nos.lol`
-- `wss://relay.snort.social` 
-- `wss://relay.current.fyi`
-- `wss://brb.io`
-- `wss://offchain.pub`
-- `wss://relay.nostr.band`
-
-### **Asset Requirements**
-You need to provide these SVG files in the `assets/` folder:
-- `logo.svg` - Thunderproof logo
-- `0.svg` to `100.svg` - shield ratings (0%, 10%, 20%, ..., 100%)
-
-## 🌟 Key Improvements v3
-
-1. **✅ Real Persistence**: Reviews stay on Nostr relays forever
-2. **✅ No Fake Data**: Removed all demo/placeholder reviews  
-3. **✅ Working nsec Login**: Manual private key entry with local storage
-4. **✅ Removed Key Generation**: Security best practice
-5. **✅ Enhanced Error Handling**: Better loading states and error messages
-6. **✅ SVG Support**: Uses your shield rating assets properly
-7. **✅ Mobile Responsive**: Works great on all device sizes
-8. **✅ Professional UI**: Dark theme with Bitcoin orange accents
-
-## 📦 Setup Instructions
-
-### **1. Create New Repository**
-```bash
-git clone https://github.com/MaxiKenji/thunderproof-v3.git
-cd thunderproof-v3
-```
-
-### **2. Add Your Assets**
-Create `assets/` folder and add your SVG files:
-- Convert your JPG shield ratings to SVG format
-- Name them: `0.svg`, `10.svg`, `20.svg`, ..., `100.svg`
-- Add your `logo.svg` file
-
-### **3. Deploy to GitHub Pages**
-```bash
-git add .
-git commit -m "Initial Thunderproof v3 setup"
-git push origin main
-
-# Enable GitHub Pages in Settings → Pages → main branch
-```
-
-### **4. Test Functionality**
-1. Visit your GitHub Pages URL
-2. Search for a profile using example npubs
-3. Connect with your Nostr account
-4. Add a test review and verify it persists
-5. Test the embed widget
-
-## 🔗 Example Usage
-
-### **Direct Profile Links**
-```
-https://yoursite.com/?profile=npub104fpzfgtc4h272p66uye2nhjes622x7dduk97g8re5h8gmmv2pnsqdq2a2
-```
-
-### **Embed Widget**
-
-Coming soon!
-
-## 💡 Review Data Format
-
-Reviews are stored as Nostr events with this structure:
-```json
-{
-  "kind": 1985,
-  "content": "Review comment text",
-  "tags": [
-    ["L", "thunderproof"],
-    ["l", "review", "thunderproof"],
-    ["p", "target_pubkey_hex"],
-    ["rating", "5"],
-    ["client", "Thunderproof"]
-  ],
-  "created_at": 1234567890,
-  "pubkey": "reviewer_pubkey_hex",
-  "id": "event_id",
-  "sig": "signature"
-}
-```
-
-## 🛡️ Security Features
-
-- **No Key Generation**: Users must provide their own keys
-- **Local Storage Only**: Private keys never sent to servers
-- **Cryptographic Verification**: All reviews signature-verified
-- **Extension Support**: Secure NIP-07 wallet integration
-- **Decentralized Storage**: No central point of failure
-
-
+🌐 **Live:** [thunderproof.net](https://www.thunderproof.net)  
+🔗 **GitHub:** [github.com/MaxiKenji/thunderproof](https://github.com/MaxiKenji/thunderproof)
 
 ---
 
-**Built with ⚡ for the Bitcoin ecosystem on Nostr protocol**
+## 🎯 The Problem We Solve
 
-*No fake reviews. No manipulation. Just proof of trust.*
+In the Bitcoin economy, trust is everything. Whether you're:
+
+- 💰 **Buying Bitcoin courses** or educational content
+- 🛒 **Purchasing products** from Bitcoin merchants  
+- 🤝 **Working with Bitcoin service providers**
+- 📈 **Following Bitcoin influencers or creators**
+- ⚡ **Using Lightning Network services**
+
+**You need to know who you can trust.** Traditional review systems can be manipulated. Thunderproof changes that.
+
+## 🛡️ Why Thunderproof?
+
+### **Trust Through Community Verification**
+> *"Anonymous doesn't mean untrustworthy when the community vouches for them."*
+
+In Bitcoin, pseudonymity is a feature, not a bug. What matters isn't knowing someone's real name—it's knowing that **real people in the community vouch for their trustworthiness**.
+
+### **Cryptographically Guaranteed Authenticity**
+- ✅ **Every review is cryptographically signed** on Nostr protocol
+- ✅ **No fake reviews possible** - each requires a real Nostr identity
+- ✅ **Permanent storage** on decentralized relays
+- ✅ **Community consensus** shows true reputation
+
+### **Built for Bitcoin Economy**
+- 🔶 **Orange-pilled design** for the Bitcoin community
+- ⚡ **Lightning-fast** profile lookups
+- 🔒 **Privacy-first** - no email signups or personal data
+- 🌍 **Global and permissionless**
+
+---
+
+## 🚀 Key Features
+
+### **🔍 Search Any Bitcoiner**
+Search profiles using Nostr public keys (npub) to find authentic reviews from real community members.
+
+### **🔐 Secure Authentication**
+- **Nostr Extension:** Connect with Alby, nos2x, or other NIP-07 wallets
+- **Private Key Login:** Direct nsec authentication (keys stored locally)
+- **No Account Creation:** Use your existing Nostr identity
+
+### **⭐ 5-Shield Rating System**
+Our unique shield-based rating system represents trust levels in the Bitcoin community:
+- 🛡️🛡️🛡️🛡️🛡️ **5 Shields:** Highly trusted community member
+- 🛡️🛡️🛡️ **3 Shields:** Generally trustworthy
+- 🛡️ **1 Shield:** Proceed with caution
+
+### **📝 Detailed Reviews**
+- Write comprehensive reviews up to 500 characters
+- Share your experience with products, courses, or services
+- Help others make informed decisions in the Bitcoin economy
+
+### **🌐 Embeddable Widgets**
+- Share reviews anywhere with customizable iframe widgets
+- Perfect for Bitcoin merchants, educators, and service providers
+- Build trust directly on your website
+
+---
+
+## 💡 Use Cases
+
+### **For Bitcoin Educators & Creators**
+- **Build authentic reputation** for your courses and content
+- **Show social proof** with real community reviews
+- **Stand out** from scammers with verified testimonials
+
+### **For Bitcoin Merchants**
+- **Display customer reviews** that can't be faked
+- **Build trust** with potential buyers
+- **Reduce refund requests** through transparency
+
+### **For Bitcoin Service Providers**
+- **Showcase your reliability** to the community
+- **Differentiate yourself** from unreliable competitors
+- **Grow your business** through authentic referrals
+
+### **For Bitcoin Community Members**
+- **Research before you buy** courses, products, or services
+- **Avoid scams** by checking community consensus
+- **Help others** by sharing your experiences
+- **Build your own reputation** as a trusted reviewer
+
+---
+
+## 🔧 Technical Excellence
+
+### **Built on Nostr Protocol**
+- **Event Kind:** 1985 (NIP-32 labeling standard)
+- **Namespace:** `thunderproof`
+- **Permanent Storage:** Reviews stored forever on decentralized relays
+- **Cryptographic Verification:** Every review mathematically provable
+
+### **Reliable Relay Network**
+Connected to top Nostr relays for maximum uptime and global reach:
+- `wss://relay.damus.io`
+- `wss://nos.lol` 
+- `wss://relay.snort.social`
+- And more...
+
+### **Security-First Architecture**
+- 🔒 **No central servers** - fully decentralized
+- 🔑 **Private keys never leave your device**
+- ✅ **Every review cryptographically signed**
+- 🛡️ **Impossible to fake or manipulate reviews**
+
+---
+
+## 📊 Review Data Structure
+
+Each review is stored as a permanent Nostr event:
+
+```json
+{
+  "kind": 1985,
+  "content": "Excellent Bitcoin course! Worth every sat.",
+  "tags": [
+    ["L", "thunderproof"],
+    ["l", "review", "thunderproof"], 
+    ["p", "npub_of_reviewed_person"],
+    ["rating", "5"],
+    ["client", "Thunderproof"]
+  ],
+  "created_at": 1703001234,
+  "pubkey": "reviewer_npub_hex",
+  "id": "unique_event_id",
+  "sig": "cryptographic_signature"
+}
+```
+
+---
+
+## 🎨 Professional Design
+
+- 🎨 **Bitcoin-orange color scheme** 
+- 📱 **Mobile-responsive** design
+- 🌙 **Clean, modern interface**
+- ⚡ **Lightning-fast** performance
+- 🛡️ **Shield-based visual ratings**
+
+---
+
+## 🚀 Get Started
+
+### **1. Visit Thunderproof**
+Go to [thunderproof.net](https://www.thunderproof.net)
+
+### **2. Search for Reviews** 
+Enter any Nostr public key (npub) to see their community reviews
+
+### **3. Connect Your Nostr Account**
+Use your existing Nostr identity to leave authentic reviews
+
+### **4. Help Build Trust**
+Share your experiences to help the Bitcoin community thrive
+
+---
+
+## 🛡️ Security & Privacy
+
+### **Decentralized by Design**
+- No central authority controls your reviews
+- Data stored on multiple independent Nostr relays
+- No single point of failure
+
+### **Privacy-Preserving**
+- No email addresses or personal information required
+- Pseudonymous by default (like Bitcoin itself)
+- You control your identity and reputation
+
+### **Cryptographically Secure**
+- Every review mathematically verifiable
+- Impossible to forge or manipulate
+- Built on proven cryptographic standards
+
+---
+
+## 🌟 Why This Matters for Bitcoin
+
+The Bitcoin economy is built on **trust without permission**. Just like Bitcoin eliminates the need for trusted financial intermediaries, **Thunderproof eliminates the need for trusted review platforms**.
+
+When you're spending your hard-earned sats on:
+- 📚 Bitcoin education and courses
+- ⚡ Lightning Network services  
+- 🛒 Products from Bitcoin merchants
+- 🤝 Services from Bitcoin professionals
+
+**You deserve to know who you can trust.**
+
+Thunderproof gives the Bitcoin community the tools to build **reputation and trust in a permissionless, decentralized way**.
+
+---
+
+## 🔗 Links
+
+- 🌐 **Website:** [thunderproof.net](https://www.thunderproof.net)
+- 🔗 **GitHub:** [github.com/MaxiKenji/thunderproof](https://github.com/MaxiKenji/thunderproof)
+- ⚡ **Built on:** [Nostr Protocol](https://nostr.com)
+- 🛡️ **Powered by:** Community trust and cryptographic verification
+
+---
+
+## 📈 Repository Stats
+
+![GitHub stars](https://img.shields.io/github/stars/MaxiKenji/thunderproof?style=social)
+![GitHub forks](https://img.shields.io/github/forks/MaxiKenji/thunderproof?style=social)
+![GitHub issues](https://img.shields.io/github/issues/MaxiKenji/thunderproof)
+![GitHub last commit](https://img.shields.io/github/last-commit/MaxiKenji/thunderproof)
+
+---
+
+## 🤝 Contributing
+
+Help us build the future of trust in the Bitcoin economy! Check out our contribution guidelines and join the community.
+
+---
+
+**Built with ⚡ for the Bitcoin community**
+
+*No fake reviews. No manipulation. No central authority. Just cryptographic proof of trust.*
+
+---
+
+## 📄 License
+
+Open source software for the Bitcoin ecosystem.

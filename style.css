@@ -1661,7 +1661,7 @@ background: #EDF8F8;
 
 .review-rating .shields-text {
     display: flex;
-    gap: var(--space-2);
+    gap: var(--space-4);
 }
 
 .review-author {
@@ -2378,7 +2378,7 @@ background: #EDF8F8;
 @media (max-width: 1024px) {
     .hero-layout {
         grid-template-columns: 1fr;
-        gap: 60px;
+        gap: 32px;
         text-align: center;
     }
     
@@ -4728,4 +4728,17 @@ select.form-control {
     padding-left: var(--space-12);
     padding-right: var(--space-12);
   }
+
+  .hero-illustration {
+        width: 320px;
+        height: 200px;
+        margin: 0 auto;
+        padding-top: 64px;
+    }
+
+      .hero-image {
+        width: 320px;
+        margin-bottom: var(--space-24);
+    }
 }
+
