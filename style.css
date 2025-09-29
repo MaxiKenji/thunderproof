@@ -115,6 +115,8 @@
   --space-24: 24px;
   --space-32: 32px;
  --space-36: 36px;
+  --space-48: 48px;
+   --space-64: 64px;
 
 
   /* Border Radius */
@@ -1218,7 +1220,7 @@ background: #EDF8F8;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-64);
-    margin-top: var(--space-80);
+    margin-top: var(--space-64);
     justify-items: center;
 }
 
@@ -1333,8 +1335,8 @@ background: #EDF8F8;
 }
 
 .footer-logo {
-      width: 32px;
-    height: 32px;
+      width: 176px;
+   
 }
 
 .footer-brand-text {
@@ -1361,7 +1363,7 @@ background: #EDF8F8;
 }
 
 .footer-link {
-    color: #626C71;
+    color: #869A9B;
     text-decoration: none;
     font-size: var(--font-size-base);
     transition: color var(--duration-fast) var(--ease-standard);
@@ -1378,7 +1380,7 @@ background: #EDF8F8;
 }
 
 .footer-bottom p {
-    color: var(--color-text-secondary);
+   color: #869A9B;
     font-size: var(--font-size-base);
 }
 
@@ -2649,8 +2651,8 @@ background: #EDF8F8;
 
 /* Donate Button */
 .donate-btn {
-    background: linear-gradient(135deg, #F59E0B 0%, #EAB308 100%);
-    color: white;
+    background: #1EE3CE;
+    color: #003133;
     border: none;
     padding: 12px 20px;
     border-radius: 25px;
@@ -2661,7 +2663,7 @@ background: #EDF8F8;
     display: flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 12px rgba(4, 213, 199, 0.3);
 }
 
 .donate-btn:hover {
@@ -2698,38 +2700,4 @@ background: #EDF8F8;
     display: flex;
     align-items: center;
     gap: 12px;
-}
-
-/*
- * FIX: RATING SHIELD VISIBILITY
- * This addresses the issue where rating icons are not visible 
- * because they are collapsing (zero-sized) or blending with the background.
- */
-
-.rating-icon {
-    /* 1. Address the Zero-Sizing Collapse */
-    /* Must define explicit height/width for inline SVG containers to render */
-    display: inline-block;
-    height: 1.2em; /* Adjust this value for desired size */
-    width: 1.2em;  /* Adjust this value for desired size */
-    vertical-align: middle; 
-}
-
-.rating-icon svg {
-    /* Ensure the SVG element fills its container */
-    width: 100%;
-    height: 100%;
-}
-
-.rating-icon svg path {
-    /* 2. Set the default (inactive) state color */
-    /* If transparent or white, it will be invisible on a light background */
-    fill: #ccc; /* Subtle gray for inactive shields (e.g., 1 out of 5) */
-    transition: fill 0.3s ease; /* Smooth transition for visual feedback */
-}
-
-.rating-icon.active svg path {
-    /* 3. Override color for the active (filled) state */
-    /* Uses the primary brand color for emphasis, visible across all reviews */
-    fill: var(--brand-primary, #00A693); /* Replace #00A693 if your variable is not defined */
 }

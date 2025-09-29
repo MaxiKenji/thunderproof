@@ -20,20 +20,23 @@ class ThunderproofApp {
         this.REVIEW_KIND = 1985;
         this.REVIEW_NAMESPACE = 'thunderproof';
         
-        // Shield assets mapping (0% to 100% in 10% steps)
+        // FIXED: Shield assets mapping - DIRECT PATHS (no assets/ folder)
         this.shieldAssets = {
-            0: 'assets/0%.svg',
-            10: 'assets/10%.svg', 
-            20: 'assets/20%.svg',
-            30: 'assets/30%.svg',
-            40: 'assets/40%.svg',
-            50: 'assets/50%.svg',
-            60: 'assets/60%.svg',
-            70: 'assets/70%.svg',
-            80: 'assets/80%.svg',
-            90: 'assets/90%.svg',
-            100: 'assets/100%.svg'
+            0: '0%.svg',
+            10: '10%.svg', 
+            20: '20%.svg',
+            30: '30%.svg',
+            40: '40%.svg',
+            50: '50%.svg',
+            60: '60%.svg',
+            70: '70%.svg',
+            80: '80%.svg',
+            90: '90%.svg',
+            100: '100%.svg'
         };
+        
+        // Add after other configuration
+        this.myPubkey = 'npub1your_public_key_here_replace_with_yours_1234567890abcdef';
         
         this.init();
     }
@@ -97,30 +100,6 @@ class ThunderproofApp {
     }
 
     setupEventListeners() {
-
-        // Add after other event listeners
-document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    
-    try {
-        await navigator.clipboard.writeText(this.myPubkey);
-        this.showToast('Public key copied to clipboard!', 'success');
-        
-        // Update link text temporarily
-        const link = e.target;
-        const originalText = link.textContent;
-        link.textContent = 'Copied!';
-        
-        setTimeout(() => {
-            link.textContent = originalText;
-        }, 2000);
-        
-    } catch (error) {
-        console.error('Failed to copy public key:', error);
-        this.showToast('Failed to copy public key', 'error');
-    }
-});
-
         // Logo click to go home
         const logoSection = document.querySelector('.logo-section');
         logoSection?.addEventListener('click', () => this.goHome());
@@ -168,6 +147,58 @@ document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e)
         // Sort reviews
         document.getElementById('sort-reviews')?.addEventListener('change', (e) => {
             this.sortReviews(e.target.value);
+        });
+
+        // Add after other event listeners
+        document.getElementById('donate-btn')?.addEventListener('click', () => {
+            window.open('https://btcpay.btc.aw/api/v1/invoices?storeId=EhvLpeoGjxPkshjeyVPbzjoJfQd9F1LiuCKEfXuefpkX&checkoutDesc=Support&browserRedirect=https://maxikenji.github.io/bitcoin-calendar/&currency=EUR&defaultPaymentMethod=BTC_LNURLPAY', '_blank');
+        });
+
+        // Add after other event listeners
+        document.getElementById('how-it-works-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // If we're on a profile page, go back to home first
+            if (!document.getElementById('profile-section').classList.contains('hidden')) {
+                this.showHeroSection();
+                
+                // Wait for transition, then scroll
+                setTimeout(() => {
+                    const howItWorksSection = document.querySelector('.how-it-works');
+                    if (howItWorksSection) {
+                        howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 300);
+            } else {
+                // Already on home page, just scroll
+                const howItWorksSection = document.querySelector('.how-it-works');
+                if (howItWorksSection) {
+                    howItWorksSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Add after other event listeners
+        document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                await navigator.clipboard.writeText(this.myPubkey);
+                this.showToast('Public key copied to clipboard!', 'success');
+                
+                // Update link text temporarily
+                const link = e.target;
+                const originalText = link.textContent;
+                link.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    link.textContent = originalText;
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Failed to copy public key:', error);
+                this.showToast('Failed to copy public key', 'error');
+            }
         });
     }
 
@@ -604,19 +635,18 @@ document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e)
                 `${event.pubkey.substring(0, 8)}...`;
 
             return {
-    id: event.id,
-    target: targetTag[1],
-    author: event.pubkey,
-    authorNpub: authorNpub,
-    authorPicture: null, // Will be populated later
-    rating: rating,
-    content: event.content || '',
-    created_at: event.created_at,
-    verified: false,
-    signature: event.sig,
-    rawEvent: event
-};
-
+                id: event.id,
+                target: targetTag[1],
+                author: event.pubkey,
+                authorNpub: authorNpub,
+                authorPicture: null, // Will be populated later
+                rating: rating,
+                content: event.content || '',
+                created_at: event.created_at,
+                verified: false,
+                signature: event.sig,
+                rawEvent: event
+            };
         } catch (error) {
             console.error('Error processing review event:', error);
             return null;
@@ -638,21 +668,21 @@ document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e)
         noReviews.classList.add('hidden');
         reviewsList.classList.remove('hidden');
 
- reviewsList.innerHTML = this.currentReviews.map(review => `
-    <div class="review-item" data-rating="${review.rating}">
-        <div class="review-header">
-            <div class="review-meta">
-                <img src="${review.authorPicture || 'assets/placeholder_profilepicture.png'}" 
-                     alt="Reviewer" 
-                     class="review-author-avatar"
-                     onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">
-                <div class="review-content-meta">
-                    <div class="review-rating">
-                        <div class="shields-text">${this.getShieldsDisplay(review.rating)}</div>
-                    </div>
-                    <span class="review-author" onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">${this.formatAuthor(review.authorNpub)}</span>
-                </div>
- ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
+        reviewsList.innerHTML = this.currentReviews.map(review => `
+            <div class="review-item" data-rating="${review.rating}">
+                <div class="review-header">
+                    <div class="review-meta">
+                        <img src="${review.authorPicture || 'placeholder_profilepicture.png'}" 
+                             alt="Reviewer" 
+                             class="review-author-avatar"
+                             onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">
+                        <div class="review-content-meta">
+                            <div class="review-rating">
+                                <div class="shields-text">${this.getShieldsDisplay(review.rating)}</div>
+                            </div>
+                            <span class="review-author" onclick="window.thunderproof.openAuthorProfile('${review.authorNpub}')">${this.formatAuthor(review.authorNpub)}</span>
+                        </div>
+                        ${review.verified ? '<span class="verified-badge">⚡ Verified</span>' : ''}
                     </div>
                     <span class="review-date">${this.formatDate(review.created_at)}</span>
                 </div>
@@ -1042,7 +1072,7 @@ document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e)
                 if (this.user.picture) {
                     userAvatar.src = this.user.picture;
                 } else {
-                    userAvatar.src = 'assets/placeholder_profilepicture.png';
+                    userAvatar.src = 'placeholder_profilepicture.png';
                 }
             }
             
@@ -1571,33 +1601,33 @@ document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e)
         window.history.replaceState({}, document.title, url);
     }
 
-    // NEW: Shield-based rating display
-  getShieldsDisplay(rating) {
-    const shields = [];
-    const fullShields = Math.floor(rating);
-    const hasPartialShield = (rating % 1) > 0;
-    const partialPercentage = Math.round((rating % 1) * 100);
-    
-    // Add full shields
-    for (let i = 0; i < fullShields; i++) {
-        shields.push(`<img src="assets/100%.svg" alt="full shield" width="20" height="20">`);
+    // FIXED: Shield-based rating display - CORRECT PATHS
+    getShieldsDisplay(rating) {
+        const shields = [];
+        const fullShields = Math.floor(rating);
+        const hasPartialShield = (rating % 1) > 0;
+        const partialPercentage = Math.round((rating % 1) * 100);
+        
+        // Add full shields
+        for (let i = 0; i < fullShields; i++) {
+            shields.push(`<img src="100%.svg" alt="full shield" width="20" height="20">`);
+        }
+        
+        // Add partial shield if needed
+        if (hasPartialShield && fullShields < 5) {
+            const closestPercentage = Math.round(partialPercentage / 10) * 10;
+            const assetName = `${closestPercentage}%.svg`;
+            shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
+        }
+        
+        // Add empty shields to make 5 total
+        const remainingShields = 5 - shields.length;
+        for (let i = 0; i < remainingShields; i++) {
+            shields.push(`<img src="0%.svg" alt="empty shield" width="20" height="20">`);
+        }
+        
+        return shields.join('');
     }
-    
-    // Add partial shield if needed
-    if (hasPartialShield && fullShields < 5) {
-        const closestPercentage = Math.round(partialPercentage / 10) * 10;
-        const assetName = `assets/${closestPercentage}%.svg`;
-        shields.push(`<img src="${assetName}" alt="partial shield" width="20" height="20">`);
-    }
-    
-    // Add empty shields to make 5 total
-    const remainingShields = 5 - shields.length;
-    for (let i = 0; i < remainingShields; i++) {
-        shields.push(`<img src="assets/0%.svg" alt="empty shield" width="20" height="20">`);
-    }
-    
-    return shields.join('');
-}
 
     // UI Helpers
     showModal(modal) {
@@ -1690,7 +1720,7 @@ document.getElementById('copy-pubkey-link')?.addEventListener('click', async (e)
     }
 
     generateDefaultAvatar() {
-        return `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="40" fill="%2300D4AA"/><text x="40" y="48" text-anchor="middle" font-size="24" fill="white">⚡</text></svg>`;
+        return 'placeholder_profilepicture.png';
     }
 }
 
@@ -1727,32 +1757,3 @@ document.addEventListener('visibilitychange', () => {
         console.log('📱 Page is now visible');
     }
 });
-// Add after other event listeners
-document.getElementById('donate-btn')?.addEventListener('click', () => {
-    window.open('https://btcpay.btc.aw/api/v1/invoices?storeId=EhvLpeoGjxPkshjeyVPbzjoJfQd9F1LiuCKEfXuefpkX&checkoutDesc=Support&browserRedirect=https://maxikenji.github.io/bitcoin-calendar/&currency=EUR&defaultPaymentMethod=BTC_LNURLPAY', '_blank');
-});
-// Add after other event listeners
-document.getElementById('how-it-works-link')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    
-    // If we're on a profile page, go back to home first
-    if (!document.getElementById('profile-section').classList.contains('hidden')) {
-        this.showHeroSection();
-        
-        // Wait for transition, then scroll
-        setTimeout(() => {
-            const howItWorksSection = document.querySelector('.how-it-works');
-            if (howItWorksSection) {
-                howItWorksSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }, 300);
-    } else {
-        // Already on home page, just scroll
-        const howItWorksSection = document.querySelector('.how-it-works');
-        if (howItWorksSection) {
-            howItWorksSection.scrollIntoView({ behavior: 'smooth' });
-        }
-    }
-});
-// Add after other configuration
-this.myPubkey = 'npub1your_public_key_here_replace_with_yours_1234567890abcdef';
